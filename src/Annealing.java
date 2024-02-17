@@ -1,11 +1,16 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Annealing {
 
-    public static double startTemperature = 100000;
-    public static double coolingRate = 0.8;
+    public static double startTemperature = 10_000;
+    public static double coolingRate = 0.999;
     public static double endTemperature = 1;
     public static int numMutationsPerIteration = 1;
+    public static String statsFile = "stats.csv";
+    public static String pathFile = "path.csv";
 
     public static void solveWithAnnealingMenu(Scanner scanner) {
         int option = 0;
@@ -15,10 +20,11 @@ public class Annealing {
             System.out.println("Start temperature: " + startTemperature);
             System.out.println("Cooling rate: " + coolingRate);
             System.out.println("End temperature: " + endTemperature);
-            System.out.println("Number of mutations per iteration: " + numMutationsPerIteration);
+            System.out.println("Number of mutations per iteration: " + numMutationsPerIteration + "\n");
+
             System.out.println("1. Change start temperature");
-            System.out.println("2. Change cooling rate");
-            System.out.println("3. Change end temperature");
+            System.out.println("2. Change end temperature");
+            System.out.println("3. Change cooling rate");
             System.out.println("4. Change number of mutations per iteration");
             System.out.println("5. Solve");
             System.out.println("6. Back");
@@ -38,10 +44,10 @@ public class Annealing {
                     break;
                 case 2:
                     while (true) {
-                        System.out.println("Cooling rate: ");
-                        coolingRate = scanner.nextDouble();
-                        if (coolingRate <= 0 || coolingRate >= 1) {
-                            System.out.println("The cooling rate must be between 0 and 1");
+                        System.out.println("End temperature: ");
+                        endTemperature = scanner.nextDouble();
+                        if (endTemperature <= 0) {
+                            System.out.println("The end temperature must be greater than 0");
                             continue;
                         }
                         break;
@@ -49,10 +55,10 @@ public class Annealing {
                     break;
                 case 3:
                     while (true) {
-                        System.out.println("End temperature: ");
-                        endTemperature = scanner.nextDouble();
-                        if (endTemperature <= 0) {
-                            System.out.println("The end temperature must be greater than 0");
+                        System.out.println("Cooling rate: ");
+                        coolingRate = scanner.nextDouble();
+                        if (coolingRate <= 0 || coolingRate >= 1) {
+                            System.out.println("The cooling rate must be between 0 and 1");
                             continue;
                         }
                         break;
@@ -70,10 +76,14 @@ public class Annealing {
                     }
                     break;
                 case 5:
-                    long startTime = System.currentTimeMillis();
-                    solve(Main.packages);
-                    long endTime = System.currentTimeMillis();
-                    System.out.println("Execution time: " + (endTime - startTime) + "ms");
+                    try {
+                        long startTime = System.currentTimeMillis();
+                        solve(Main.packages);
+                        long endTime = System.currentTimeMillis();
+                        System.out.println("Execution time: " + (endTime - startTime) + "ms");
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                     break;
             }
         }
@@ -93,19 +103,31 @@ public class Annealing {
         return espectedCost;
     }
 
-    public static Package[] solve(Package[] packages) {
+    public static void solve(Package[] packages) throws IOException {
+
+        BufferedWriter statsWriter;
+        BufferedWriter pathWriter;
+        try {
+            statsWriter = new BufferedWriter(new FileWriter(statsFile));
+            pathWriter = new BufferedWriter(new FileWriter(pathFile));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         double temperature = startTemperature;
         double bestCost = getCost(packages);
         Package[] bestPath = packages.clone();
 
-        Package[] currentPath = packages;
+        Package[] currentPath = packages.clone();
         double currentCost = bestCost;
 
         int inter = 0;
-        System.out.println(String.join(",", "Iteration", "Temperature", "Best Cost", "Current Cost"));
+
+        statsWriter.write(String.join(",", "Iteration", "Best Cost", "Current Cost","Temperature"));
+        statsWriter.newLine();
 
         while (temperature > endTemperature) {
-            Package[] newPath = currentPath.clone();
+            Package[] newPath = currentPath;
 
             for (int i = 0; i < numMutationsPerIteration; i++){
                 int randomIndex1 = (int) (Math.random() * (packages.length - 1));
@@ -131,14 +153,13 @@ public class Annealing {
 
             temperature *= 1 * coolingRate;
             inter++;
-            System.out.println(String.join(",", String.valueOf(inter), String.valueOf(temperature), String.valueOf(bestCost), String.valueOf(currentCost)));
+
+            statsWriter.write(String.join(",", String.valueOf(inter), String.format("%.0f",bestCost), String.format("%.0f",currentCost),String.format("%.0f",temperature)));
+            statsWriter.newLine();
         }
 
-        for (Package p : bestPath) {
-            System.out.println(p.getX() + " " + p.getY());
-        }
+        statsWriter.close();
 
-        return bestPath;
     }
 
 }
