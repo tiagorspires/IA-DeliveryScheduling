@@ -12,7 +12,7 @@ public class Annealing {
     public static double endTemperature = 1;
     public static int mutationType = 1;
 
-    public static int numUnchangedIterations = 35;
+    public static int numUnchangedIterations = 1000;
     public static String statsFile = "stats.csv";
     public static String pathFile = "path.csv";
 
@@ -128,7 +128,7 @@ public class Annealing {
 
         //move the elements between index1 and index2 one position to the right
         Package temp = newPath[randomIndex2];
-        System.arraycopy(newPath, randomIndex1, newPath, randomIndex1 + 1, randomIndex2 - randomIndex1 - 1);
+        System.arraycopy(newPath, randomIndex1, newPath, randomIndex1 + 1, randomIndex2 - randomIndex1);
         //put the element in index1 in index2
         newPath[randomIndex1] = temp;
     }
