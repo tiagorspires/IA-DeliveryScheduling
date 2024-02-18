@@ -118,7 +118,7 @@ public class Annealing {
         double bestCost = getCost(packages);
         Package[] bestPath = packages.clone();
 
-        Package[] currentPath = packages.clone();
+        Package[] currentPath = packages;
         double currentCost = bestCost;
 
         int inter = 0;
@@ -127,7 +127,7 @@ public class Annealing {
         statsWriter.newLine();
 
         while (temperature > endTemperature) {
-            Package[] newPath = currentPath;
+            Package[] newPath = currentPath.clone();
 
             for (int i = 0; i < numMutationsPerIteration; i++){
                 int randomIndex1 = (int) (Math.random() * (packages.length - 1));
