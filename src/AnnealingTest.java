@@ -1,0 +1,64 @@
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.HashSet;
+
+public class AnnealingTest {
+
+    private static final HashSet<String> original = new HashSet<>();
+
+    private static final Package[] packages = Main.generatePackages(500,100,100);
+    @BeforeAll
+    public static void setUp() {
+        for (Package p : packages) {
+            original.add(p.toString());
+        }
+    }
+    @Test
+    public void mutation1Test() {
+
+        // repeat the test 100 times
+        for (int i = 0; i < 100; i++) {
+            Annealing.mutation1(packages);
+
+            for (Package p : packages) {
+                assert(original.contains(p.toString()));
+            }
+        }
+    }
+
+    @Test
+    public void mutation2Test() {
+        for (int i = 0; i < 100; i++) {
+            Annealing.mutation2(packages);
+
+            for (Package p : packages) {
+                assert(original.contains(p.toString()));
+            }
+        }
+    }
+
+    @Test
+    public void mutation3Test() {
+        for (int i = 0; i < 100; i++) {
+            Annealing.mutation3(packages);
+
+            for (Package p : packages) {
+                assert(original.contains(p.toString()));
+            }
+        }
+    }
+
+    @Test
+    public void SolveTest() throws IOException {
+        Annealing.mutationType = 2;
+
+        Package[] newPackages = Annealing.solve(packages);
+
+        for (Package p : newPackages) {
+            assert(original.contains(p.toString()));
+        }
+    }
+
+}

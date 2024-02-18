@@ -33,4 +33,15 @@ public class Package {
         return distance(p) * Main.costPerKm;
     }
 
+    public String toString(){
+        return "( N " + x + " " + y + " )";
+    }
+
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        //instanceof inherited class is not equal
+        if (!(o instanceof Package p)) return false;
+
+        return p.getX() == x && p.getY() == y;
+    }
 }

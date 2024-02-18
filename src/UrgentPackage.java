@@ -29,4 +29,14 @@ public class UrgentPackage extends Package implements Comparable<UrgentPackage>{
         }
         return distance(p) * Main.costPerKm;
     }
+
+    public String toString(){
+        return "( U " + getX() + " " + getY() +  " " + deliveryTime + " )";
+    }
+
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof UrgentPackage p)) return false;
+        return p.getX() == getX() && p.getY() == getY() && p.deliveryTime == deliveryTime;
+    }
 }
