@@ -2,7 +2,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class AnnealingTest {
 
@@ -20,10 +23,15 @@ public class AnnealingTest {
 
         // repeat the test 100 times
         for (int i = 0; i < 100; i++) {
-            Annealing.mutation1(packages);
+            Package[] p = packages.clone();
 
-            for (Package p : packages) {
-                assert(original.contains(p.toString()));
+            Annealing.mutation1(p);
+
+            // check if the original set contains the mutated packages
+            Set<Package> a = Arrays.stream(p).collect(Collectors.toSet());
+
+            for (Package p1: packages) {
+                assert(a.contains(p1));
             }
         }
     }
@@ -31,21 +39,32 @@ public class AnnealingTest {
     @Test
     public void mutation2Test() {
         for (int i = 0; i < 100; i++) {
-            Annealing.mutation2(packages);
+            Package[] p = packages.clone();
 
-            for (Package p : packages) {
-                assert(original.contains(p.toString()));
+            Annealing.mutation2(p);
+
+            // check if the original set contains the mutated packages
+            Set<Package> a = Arrays.stream(p).collect(Collectors.toSet());
+
+            for (Package p1: packages) {
+                assert(a.contains(p1));
             }
         }
     }
 
     @Test
     public void mutation3Test() {
+        // repeat the test 100 times
         for (int i = 0; i < 100; i++) {
-            Annealing.mutation3(packages);
+            Package[] p = packages.clone();
 
-            for (Package p : packages) {
-                assert(original.contains(p.toString()));
+            Annealing.mutation3(p);
+
+            // check if the original set contains the mutated packages
+            Set<Package> a = Arrays.stream(p).collect(Collectors.toSet());
+
+            for (Package p1: packages) {
+                assert(a.contains(p1));
             }
         }
     }
