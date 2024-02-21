@@ -24,8 +24,9 @@ public class Main {
             System.out.println("1. Generate packages");
             System.out.println("2. Solve with greedy");
             System.out.println("3. Solve with simulated annealing");
-            System.out.println("4. Solve with genetic algorithm");
-            System.out.println("5. Exit");
+            System.out.println("4. Solve with Hill Climbing algorithm");
+            System.out.println("5. Solve with genetic algorithm");
+            System.out.println("6. Exit");
 
             option = scanner.nextInt();
 
@@ -48,6 +49,11 @@ public class Main {
                     Annealing.solveWithAnnealingMenu(scanner);
                     break;
                 case 4:
+                    if (packages == null) {
+                        System.out.println("You need to generate the packages first");
+                        break;
+                    }
+                    HillClimbing.solveWithHillClimbingMenu(scanner);
                     break;
                 case 5:
                     break;

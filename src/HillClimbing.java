@@ -5,31 +5,21 @@ import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class Annealing {
-
-    public static double startTemperature = 10_000;
-    public static double coolingRate = 0.999;
-    public static double endTemperature = 1;
+public class HillClimbing {
     public static int mutationType = 1;
 
     public static int numUnchangedIterations = 1000;
     public static String statsFile = "stats.csv";
     public static String pathFile = "path.csv";
 
-    public static void solveWithAnnealingMenu(Scanner scanner) {
+    public static void solveWithHillClimbingMenu(Scanner scanner) {
         int option = 0;
         while (option != 7) {
             try {
-                System.out.println("Solve with simulated annealing\n");
+                System.out.println("Solve with Hill Climbing\n");
                 System.out.println("Current configuration:");
-                System.out.println("Start temperature: " + startTemperature);
-                System.out.println("Cooling rate: " + coolingRate);
-                System.out.println("End temperature: " + endTemperature);
                 System.out.println("Mutation type: " + mutationType + "\n");
 
-                System.out.println("1. Change start temperature");
-                System.out.println("2. Change end temperature");
-                System.out.println("3. Change cooling rate");
                 System.out.println("4. Change number of unchanged iterations");
                 System.out.println("5. Change mutation type");
                 System.out.println("6. Solve");
@@ -37,39 +27,6 @@ public class Annealing {
                 option = scanner.nextInt();
 
                 switch (option) {
-                    case 1:
-                        while (true) {
-                            System.out.println("Start temperature: ");
-                            startTemperature = scanner.nextDouble();
-                            if (startTemperature <= 0) {
-                                System.out.println("The start temperature must be greater than 0");
-                                continue;
-                            }
-                            break;
-                        }
-                        break;
-                    case 2:
-                        while (true) {
-                            System.out.println("End temperature: ");
-                            endTemperature = scanner.nextDouble();
-                            if (endTemperature <= 0) {
-                                System.out.println("The end temperature must be greater than 0");
-                                continue;
-                            }
-                            break;
-                        }
-                        break;
-                    case 3:
-                        while (true) {
-                            System.out.println("Cooling rate: ");
-                            coolingRate = scanner.nextDouble();
-                            if (coolingRate <= 0 || coolingRate >= 1) {
-                                System.out.println("The cooling rate must be between 0 and 1");
-                                continue;
-                            }
-                            break;
-                        }
-                        break;
                     case 4:
                         while (true) {
                             System.out.println("Number of unchanged iterations: ");
@@ -178,7 +135,6 @@ public class Annealing {
         statsWriter = new BufferedWriter(new FileWriter(statsFile));
         pathWriter = new BufferedWriter(new FileWriter(pathFile));
 
-        double temperature = startTemperature;
         double bestCost = getCost(packages);
         Package[] bestPath = packages.clone();
 
@@ -211,7 +167,7 @@ public class Annealing {
             double delta = newCost - currentCost;
 
             lastMutation++;
-            if (delta < 0 || Math.exp(-delta / temperature) > Math.random()) {
+            if (delta < 0 ) {
                 currentPath = newPath;
                 currentCost = newCost;
                 lastMutation = 0;
@@ -224,17 +180,16 @@ public class Annealing {
             }
 
             if (iter % 10_000 == 0)
-                System.out.println("Iteration " + iter + " with cost " + currentCost + " and temperature " + temperature + " new cost " + newCost + " num unchanged mutation " + lastMutation + " max unchanged mutation " + maxLastMutation);
+                System.out.println("Iteration " + iter + " with cost " + currentCost + " new cost " + newCost + " num unchanged mutation " + lastMutation + " max unchanged mutation " + maxLastMutation);
 
             if (newCost < bestCost) {
                 bestCost = newCost;
                 bestPath = newPath.clone();
             }
 
-            temperature *= 1 * coolingRate;
             iter++;
 
-            statsWriter.write(String.join(",", String.valueOf(iter), String.format("%.0f",bestCost), String.format("%.0f",currentCost),String.format("%.0f",temperature)));
+            statsWriter.write(String.join(",", String.valueOf(iter), String.format("%.0f",bestCost), String.format("%.0f",currentCost)));
             statsWriter.newLine();
 
             pathWriter.write(String.join(",", Arrays.stream(currentPath).map(Object::toString).toArray(String[
