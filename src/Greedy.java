@@ -26,8 +26,8 @@ public class Greedy {
                 break;
         }
     }
-    public static double distance(Package p, int x, int y) {
-        return Math.sqrt(Math.pow(p.getX() - x, 2) + Math.pow(p.getY() - y, 2));
+    public static int distance(Package p, int x, int y) {
+        return (int) Math.sqrt(Math.pow(p.getX() - x, 2) + Math.pow(p.getY() - y, 2));
     }
     public static LinkedList<Package> greedy1() {
         LinkedList<Package> solution = new LinkedList<>();
@@ -48,11 +48,7 @@ public class Greedy {
         urgentPackages.sort(UrgentPackage::compareTo);
 
         for(UrgentPackage p: urgentPackages){
-            if (p.getDeliveryTime() <= distance(p, currentX, currentY) ) {
-                cost += Main.costPerKm * distance(p, currentX, currentY);
-            } else {
-                cost += Main.costPerKm * distance(p, currentX, currentY) + 2*Main.costPerKm * (p.getDeliveryTime() - distance(p, currentX, currentY));
-            }
+            cost += p.getCost(currentX, currentY, distance(p, currentX, currentY));
             for(UrgentPackage p1: urgentPackages){
                 p1.setDeliveryTime(p1.getDeliveryTime() - distance(p, currentX, currentY));
             }
@@ -62,16 +58,10 @@ public class Greedy {
             solution.add(p);
         }
 
-        double p_damage;
         fragilePackages.sort(FragilePackage::compareTo);
 
         for(FragilePackage p: fragilePackages){
-            p_damage = p.getBreakingCost() * (1 - Math.pow(1 - p.getBreakingChance(), distance(p, currentX, currentY) + totalKm));
-            if (p_damage > Math.random() ) {
-                cost += Main.costPerKm * distance(p, currentX, currentY) + p.getBreakingCost();
-            } else {
-                cost += Main.costPerKm * distance(p, currentX, currentY);
-            }
+            cost+= p.getCost(currentX, currentY, distance(p, currentX, currentY));
             solution.add(p);
             totalKm += distance(p, currentX, currentY);
             currentX = p.getX();
@@ -79,7 +69,7 @@ public class Greedy {
         }
         normalPackages.sort(Package::compareTo);
         while (!normalPackages.isEmpty()) {
-            cost += Main.costPerKm * distance(normalPackages.get(0), currentX, currentY);
+            cost += normalPackages.get(0).getCost(currentX, currentY, distance(normalPackages.get(0), currentX, currentY));
             totalKm += distance(normalPackages.get(0), currentX, currentY);
             currentX = normalPackages.get(0).getX();
             currentY = normalPackages.get(0).getY();
