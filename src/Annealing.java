@@ -11,7 +11,6 @@ public class Annealing {
     public static double coolingRate = 0.999;
     public static double endTemperature = 1;
     public static int mutationType = 1;
-
     public static int numUnchangedIterations = 1000;
     public static String statsFile = "stats.csv";
     public static String pathFile = "path.csv";
@@ -156,18 +155,27 @@ public class Annealing {
     }
 
     public static void mutate(Package[] newPath) {
-        //probabilities:
-        // mutation1 89
-        // mutation2 10
-        // mutation3 1
+        if (mutationType == 1) {
+            int randomIndex1 = (int) (Math.random() * (newPath.length - 1));
+            int randomIndex2 = (int) (Math.random() * (newPath.length - 1));
 
-        int random = (int) (Math.random() * 100);
-        if (random < 89) {
-            mutation1(newPath);
-        } else if (random < 99) {
-            mutation2(newPath);
+            Package temp = newPath[randomIndex1];
+            newPath[randomIndex1] = newPath[randomIndex2];
+            newPath[randomIndex2] = temp;
         } else {
-            mutation3(newPath);
+            //probabilities:
+            // mutation1 89
+            // mutation2 10
+            // mutation3 1
+
+            int random = (int) (Math.random() * 100);
+            if (random < 89) {
+                mutation1(newPath);
+            } else if (random < 99) {
+                mutation2(newPath);
+            } else {
+                mutation3(newPath);
+            }
         }
     }
 
@@ -195,17 +203,7 @@ public class Annealing {
 
         while (lastMutation < numUnchangedIterations) {
             Package[] newPath = currentPath.clone();
-
-            if (mutationType == 1) {
-                int randomIndex1 = (int) (Math.random() * (packages.length - 1));
-                int randomIndex2 = (int) (Math.random() * (packages.length - 1));
-
-                Package temp = newPath[randomIndex1];
-                newPath[randomIndex1] = newPath[randomIndex2];
-                newPath[randomIndex2] = temp;
-            } else {
-                mutate(newPath);
-            }
+            mutate(newPath);
 
             double newCost = getCost(newPath);
             double delta = newCost - currentCost;
@@ -217,30 +215,18 @@ public class Annealing {
                 lastMutation = 0;
             }
 
-            if (lastMutation > maxLastMutation) {
-                maxLastMutation = lastMutation;
-                if (maxLastMutation % 10 == 0)
-                    System.out.println("num unchanged mutation " + maxLastMutation + "reached at iteration " + iter + " with cost " + currentCost);
-            }
-
-            if (iter % 10_000 == 0)
-                System.out.println("Iteration " + iter + " with cost " + currentCost + " and temperature " + temperature + " new cost " + newCost + " num unchanged mutation " + lastMutation + " max unchanged mutation " + maxLastMutation);
-
-            if (newCost < bestCost) {
-                bestCost = newCost;
-                bestPath = newPath.clone();
-            }
-
+            maxLastMutation = Math.max(lastMutation, maxLastMutation);
+            bestCost = Math.min(newCost, bestCost);
             temperature *= 1 * coolingRate;
             iter++;
 
             statsWriter.write(String.join(",", String.valueOf(iter), String.format("%.0f",bestCost), String.format("%.0f",currentCost),String.format("%.0f",temperature)));
             statsWriter.newLine();
-
-            pathWriter.write(String.join(",", Arrays.stream(currentPath).map(Object::toString).toArray(String[
-                    ]::new)));
-            pathWriter.newLine();
         }
+
+        pathWriter.write(String.join(",", Arrays.stream(currentPath).map(Object::toString).toArray(String[
+                ]::new)));
+        pathWriter.newLine();
 
         statsWriter.close();
         pathWriter.close();

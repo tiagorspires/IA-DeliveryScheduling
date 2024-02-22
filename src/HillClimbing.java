@@ -175,12 +175,7 @@ public class HillClimbing {
 
             if (lastMutation > maxLastMutation) {
                 maxLastMutation = lastMutation;
-                if (maxLastMutation % 10 == 0)
-                    System.out.println("num unchanged mutation " + maxLastMutation + "reached at iteration " + iter + " with cost " + currentCost);
             }
-
-            if (iter % 10_000 == 0)
-                System.out.println("Iteration " + iter + " with cost " + currentCost + " new cost " + newCost + " num unchanged mutation " + lastMutation + " max unchanged mutation " + maxLastMutation);
 
             if (newCost < bestCost) {
                 bestCost = newCost;
@@ -191,11 +186,11 @@ public class HillClimbing {
 
             statsWriter.write(String.join(",", String.valueOf(iter), String.format("%.0f",bestCost), String.format("%.0f",currentCost)));
             statsWriter.newLine();
-
-            pathWriter.write(String.join(",", Arrays.stream(currentPath).map(Object::toString).toArray(String[
-                    ]::new)));
-            pathWriter.newLine();
         }
+
+        pathWriter.write(String.join(",", Arrays.stream(currentPath).map(Object::toString).toArray(String[
+                ]::new)));
+        pathWriter.newLine();
 
         statsWriter.close();
         pathWriter.close();
