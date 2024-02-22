@@ -60,7 +60,6 @@ public class Greedy {
             currentY = p.getY();
             totalKm += distance(p, currentX, currentY);
             solution.add(p);
-            urgentPackages.remove(p);
         }
 
         double p_damage;
@@ -77,7 +76,6 @@ public class Greedy {
             totalKm += distance(p, currentX, currentY);
             currentX = p.getX();
             currentY = p.getY();
-            fragilePackages.remove(p);
         }
         normalPackages.sort(Package::compareTo);
         while (!normalPackages.isEmpty()) {
@@ -85,8 +83,8 @@ public class Greedy {
             totalKm += distance(normalPackages.get(0), currentX, currentY);
             currentX = normalPackages.get(0).getX();
             currentY = normalPackages.get(0).getY();
-            Package p = normalPackages.remove(0);
-            solution.add(p);
+            solution.add(normalPackages.get(0));
+            normalPackages.remove(0);
         }
         System.out.println("Greedy 1 cost: " + cost);
 
