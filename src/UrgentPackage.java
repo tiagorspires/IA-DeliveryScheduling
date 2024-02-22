@@ -1,6 +1,6 @@
 public class UrgentPackage extends Package implements Comparable<UrgentPackage>{
 
-    private final int deliveryTime;
+    private double deliveryTime;
 
     public UrgentPackage(int x, int y, int deliveryTime) {
         super(x, y);
@@ -9,10 +9,10 @@ public class UrgentPackage extends Package implements Comparable<UrgentPackage>{
 
     @Override
     public int compareTo(UrgentPackage o) {
-        return Integer.compare(this.deliveryTime, o.deliveryTime);
+        return Double.compare(this.deliveryTime, o.deliveryTime);
     }
 
-    public int getDeliveryTime() {
+    public double getDeliveryTime() {
         return deliveryTime;
     }
 
@@ -38,5 +38,9 @@ public class UrgentPackage extends Package implements Comparable<UrgentPackage>{
         if (o == this) return true;
         if (!(o instanceof UrgentPackage p)) return false;
         return p.getX() == getX() && p.getY() == getY() && p.deliveryTime == deliveryTime;
+    }
+
+    public void setDeliveryTime(double i) {
+        deliveryTime = i;
     }
 }

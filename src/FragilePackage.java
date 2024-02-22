@@ -2,7 +2,6 @@ public class FragilePackage extends Package implements Comparable<FragilePackage
 
     private final double breakingChance;
     private final int breakingCost;
-
     private double cost = 0;
     public FragilePackage(int x, int y, double breakingChance, int breakingCost) {
         super(x, y);
@@ -32,7 +31,7 @@ public class FragilePackage extends Package implements Comparable<FragilePackage
 
     @Override
     public int compareTo(FragilePackage o) {
-        return Double.compare(this.cost, o.cost);
+        return Double.compare(this.breakingChance*this.breakingCost, o.breakingChance*o.breakingCost);
     }
 
     public String toString(){

@@ -44,4 +44,11 @@ public class Package {
 
         return p.getX() == x && p.getY() == y;
     }
+
+
+    // sort packages by distance from last package
+    public int compareTo(Package o) {
+        return Double.compare(this.distance(this.getX(), this.getY()), o.distance(this.getX(), this.getY()));
+    }
+
 }
