@@ -180,18 +180,15 @@ public class Annealing {
     }
 
     public static Package[] solve(Package[] packages) throws IOException {
-        BufferedWriter statsWriter;
-        BufferedWriter pathWriter;
-
-        statsWriter = new BufferedWriter(new FileWriter(statsFile));
-        pathWriter = new BufferedWriter(new FileWriter(pathFile));
+        BufferedWriter statsWriter = new BufferedWriter(new FileWriter(statsFile));
+        BufferedWriter pathWriter = new BufferedWriter(new FileWriter(pathFile));
 
         double temperature = startTemperature;
         double bestCost = getCost(packages);
-        Package[] bestPath = packages.clone();
-
-        Package[] currentPath = packages;
         double currentCost = bestCost;
+
+        Package[] bestPath = packages.clone();
+        Package[] currentPath = packages;
 
         int iter = 0;
 
@@ -216,9 +213,13 @@ public class Annealing {
             }
 
             maxLastMutation = Math.max(lastMutation, maxLastMutation);
-            bestCost = Math.min(newCost, bestCost);
             temperature *= 1 * coolingRate;
             iter++;
+
+            if (currentCost < bestCost) {
+                bestPath = currentPath;
+                bestCost = currentCost;
+            }
 
             statsWriter.write(String.join(",", String.valueOf(iter), String.format("%.0f",bestCost), String.format("%.0f",currentCost),String.format("%.0f",temperature)));
             statsWriter.newLine();
