@@ -92,17 +92,18 @@ public class Genetic {
     }
 
     public static void solve(Package[] packages) {
-        ArrayList<Package[]> population = new ArrayList<>(populationSize); // population of paths
-        Package[][] children = new Package[childrenSize][packages.length];
+        ArrayList<Package[]> population = new ArrayList<>(populationSize + childrenSize); // population of paths
         Package[] bestPath = new Package[packages.length];
         double bestCost = Integer.MAX_VALUE;
         int generation = 0;
 
-        System.out.println(Annealing.getCost(packages));
-
         // Generate  random initial population
         for (int i = 0; i < populationSize; i++) {
             population.add(shuffle(packages.clone()));
+        }
+
+        for (int i = 0; i < childrenSize; i++) {
+            population.add(new Package[packages.length]);
         }
 
 
@@ -112,12 +113,11 @@ public class Genetic {
             for (int i = 0; i < childrenSize; i++) {
                 int parent1 = (int) (Math.random() * populationSize);
                 int parent2 = (int) (Math.random() * populationSize);
-                crossover(population.get(parent1), population.get(parent2), children[i]);
-                population.add(children[i]);
+                crossover(population.get(parent1), population.get(parent2), population.get(populationSize + i));
             }
 
             // Mutation
-            for (Package[] p : children) {
+            for (Package[] p : population.subList(populationSize, populationSize + childrenSize)) {
                 if (Math.random() < mutationProb) {
                     int randomIndex1 = (int) (Math.random() * (p.length - 1));
                     int randomIndex2 = (int) (Math.random() * (p.length - 1));
@@ -130,7 +130,6 @@ public class Genetic {
             // 738 + 760 + 148 + 4776
 
             population.sort(Comparator.comparingDouble(Annealing::getCost));
-            population = new ArrayList<>(population.subList(0, populationSize));
 
             if (Annealing.getCost(population.get(0)) < bestCost) {
                 bestPath = population.get(0);
@@ -144,6 +143,8 @@ public class Genetic {
             generation++;
 
         }
+
+
 
         System.out.println("Generation: " + generation);
         System.out.println("Best path: " + Arrays.toString(bestPath));
