@@ -7,7 +7,6 @@ import java.util.Scanner;
 
 public class HillClimbing {
     public static int mutationType = 1;
-
     public static int numUnchangedIterations = 1000;
     public static String statsFile = "stats.csv";
     public static String pathFile = "path.csv";
@@ -182,10 +181,11 @@ public class HillClimbing {
                 bestPath = newPath.clone();
             }
 
-            iter++;
+            if (iter % 1_000_000 == 0) {
+                System.out.println("Iteration: " + iter + " Best cost: " + bestCost + " Current cost: " + currentCost + " Max unchanged iterations: " + maxLastMutation);
+            }
 
-            statsWriter.write(String.join(",", String.valueOf(iter), String.format("%.0f",bestCost), String.format("%.0f",currentCost)));
-            statsWriter.newLine();
+            iter++;
         }
 
         pathWriter.write(String.join(",", Arrays.stream(currentPath).map(Object::toString).toArray(String[

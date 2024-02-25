@@ -21,10 +21,12 @@ public class FragilePackage extends Package implements Comparable<FragilePackage
         this.cost = cost;
     }
 
+    @Override
     public double getCost(int x, int y, int totalKm){
         return distance(x, y) * Main.costPerKm + breakingCost * (1 - Math.pow(1 - breakingChance, distance(x, y) + totalKm));
     }
 
+    @Override
     public double getCost(Package p, int totalKm){
         return distance(p) * Main.costPerKm + breakingCost * (1 - Math.pow(1 - breakingChance, distance(p) + totalKm));
     }

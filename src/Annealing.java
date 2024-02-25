@@ -12,6 +12,7 @@ public class Annealing {
     public static double endTemperature = 1;
     public static int mutationType = 1;
     public static int numUnchangedIterations = 1000;
+    public static int numIterations;
     public static String statsFile = "stats.csv";
     public static String pathFile = "path.csv";
 
@@ -221,9 +222,15 @@ public class Annealing {
                 bestCost = currentCost;
             }
 
-            statsWriter.write(String.join(",", String.valueOf(iter), String.format("%.0f",bestCost), String.format("%.0f",currentCost),String.format("%.0f",temperature)));
-            statsWriter.newLine();
+            if (iter % 1_000_000 == 0) {
+                System.out.println("Iteration: " + iter + " Best cost: " + bestCost + " Current cost: " + currentCost + " Temperature: " + temperature
+                        + " Max last mutation: " + maxLastMutation);
+            }
+
         }
+
+        numIterations = iter;
+
 
         pathWriter.write(String.join(",", Arrays.stream(currentPath).map(Object::toString).toArray(String[
                 ]::new)));
