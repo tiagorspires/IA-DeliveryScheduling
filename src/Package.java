@@ -37,15 +37,6 @@ public class Package {
         return "( N " + x + " " + y + " )";
     }
 
-    public boolean equals(Object o) {
-        if (o == this) return true;
-        //instanceof inherited class is not equal
-        if (!(o instanceof Package p)) return false;
-
-        return p.getX() == x && p.getY() == y;
-    }
-
-
     // sort packages by distance from last package
     public int compareTo(Package o) {
         return Double.compare(this.distance(this.getX(), this.getY()), o.distance(this.getX(), this.getY()));

@@ -1,15 +1,11 @@
-import java.sql.SQLOutput;
-import java.util.Arrays;
-import java.util.InputMismatchException;
-import java.util.Scanner;
-
+import java.util.*;
 
 public class Genetic {
 
-        public static int populationSize = 500;
-        public static int numGenerations = 100000;
-        public static int mutationType = 1;
-        public static int numGenerationSize = 1000;
+        public static int populationSize = 100;
+        public static int numGenerations = 1_000;
+        public static double mutationProb = 0.2;
+        public static int childrenSize = 100;
         public static String statsFile = "stats.csv";
         public static String pathFile = "path.csv";
 
@@ -21,13 +17,12 @@ public class Genetic {
                     System.out.println("Current configuration:");
                     System.out.println("Population size: " + populationSize);
                     System.out.println("Number of generations: " + numGenerations);
-                    System.out.println("Number of generation population Size: " + numGenerationSize);
-                    System.out.println("Mutation type: " + mutationType + "\n");
+                    System.out.println("Mutation Probability: " + mutationProb + "\n");
 
                     System.out.println("1. Change population size");
                     System.out.println("2. Change number of generations");
                     System.out.println("3. Change number of generation population");
-                    System.out.println("4. Change mutation type"); // Not sure if this option is to be implemented
+                    System.out.println("4. Change mutation Probability [0-1]"); // Not sure if this option is to be implemented
                     System.out.println("5. Solve");
                     System.out.println("6. Back");
                     option = scanner.nextInt();
@@ -56,26 +51,7 @@ public class Genetic {
                             }
                             break;
                         case 3:
-                            while (true) {
-                                System.out.println("Number of generations population size: ");
-                                numGenerationSize = scanner.nextInt();
-                                if (numGenerationSize <= 0) {
-                                    System.out.println("The number of generation population size must be greater than 0");
-                                    continue;
-                                }
-                                break;
-                            }
-                            break;
                         case 4:
-                            while (true) {
-                                System.out.println("Mutation type: ");
-                                mutationType = scanner.nextInt();
-                                if (mutationType < 1 || mutationType > 2) {
-                                    System.out.println("The mutation type must be 1 or 2");
-                                    continue;
-                                }
-                                break;
-                            }
                             break;
                         case 5:
                             long startTime = System.currentTimeMillis();
@@ -91,67 +67,88 @@ public class Genetic {
             }
         }
 
+    public static Package[] shuffle(Package[] packages) {
+        List<Package> list = Arrays.asList(packages);
+        Collections.shuffle(list);
+        return list.toArray(new Package[packages.length]);
+    }
 
-    private static void solve(Package[] packages) {
-        Package[][] population = new Package[populationSize][packages.length]; // population of paths
+    public static void crossover(Package[] parent1, Package[] parent2, Package[] child){
+        int index1 = (int) (Math.random() * (parent1.length - 2));
+        int index2 = index1 + 2;
+
+        //order based crossover
+        List<Package> rest = new ArrayList<>(Arrays.asList(parent2));
+        rest.removeAll(Arrays.asList(parent1).subList(index1, index2));
+        int restIndex = 0;
+        for(int i = 0; i < parent2.length; i++){
+            if(i >= index1 && i < index2){
+                child[i] = parent1[i];
+            }else{
+                child[i] = rest.get(restIndex);
+                restIndex++;
+            }
+        }
+    }
+
+    public static void solve(Package[] packages) {
+        ArrayList<Package[]> population = new ArrayList<>(populationSize); // population of paths
+        Package[][] children = new Package[childrenSize][packages.length];
         Package[] bestPath = new Package[packages.length];
         double bestCost = Integer.MAX_VALUE;
-        int unchangedIterations = 0;
         int generation = 0;
 
         System.out.println(Annealing.getCost(packages));
-        Package[] currentPath = packages.clone();
 
-        // Generate initial population
+        // Generate  random initial population
         for (int i = 0; i < populationSize; i++) {
-            Annealing.mutate(currentPath);
-            population[i] = currentPath;
+            population.add(shuffle(packages.clone()));
         }
 
-        while (generation < numGenerations && unchangedIterations < numGenerationSize) {
 
-            // Selection
-            for (int i = 0; i < populationSize; i++) {
-                if (Annealing.getCost(population[i]) < bestCost) {
-                    bestPath = population[i];
-                    bestCost = Annealing.getCost(population[i]);
-                    unchangedIterations = 0;
-                } else {
-                    //Ignore this generation
-                    unchangedIterations++;
-                }
+        while (generation < numGenerations) {
+
+            // Reproduction
+            for (int i = 0; i < childrenSize; i++) {
+                int parent1 = (int) (Math.random() * populationSize);
+                int parent2 = (int) (Math.random() * populationSize);
+                crossover(population.get(parent1), population.get(parent2), children[i]);
+                population.add(children[i]);
             }
-
-            //CrossOver
-            for (int i = 0; i < populationSize; i++) {
-                int randomIndex1 = (int) (Math.random() * populationSize);
-                int randomIndex2 = (int) (Math.random() * populationSize);
-                Package[] parent1 = population[randomIndex1];
-                Package[] parent2 = population[randomIndex2];
-                int crossOverPoint = (int) (Math.random() * packages.length);
-                Package[] child = new Package[packages.length];
-                for (int j = 0; j < crossOverPoint; j++) {
-                    child[j] = parent1[j];
-                }
-                for (int j = crossOverPoint; j < packages.length; j++) {
-                    child[j] = parent2[j];
-                }
-                population[i] = child;
-            }
-
 
             // Mutation
-            for (int i = 0; i < populationSize; i++) {
-                Annealing.mutate(bestPath);
-                population[i] = bestPath;
+            for (Package[] p : children) {
+                if (Math.random() < mutationProb) {
+                    int randomIndex1 = (int) (Math.random() * (p.length - 1));
+                    int randomIndex2 = (int) (Math.random() * (p.length - 1));
+
+                    Package temp = p[randomIndex1];
+                    p[randomIndex1] = p[randomIndex2];
+                    p[randomIndex2] = temp;
+                }
             }
+            // 738 + 760 + 148 + 4776
+
+            population.sort(Comparator.comparingDouble(Annealing::getCost));
+            population = new ArrayList<>(population.subList(0, populationSize));
+
+            if (Annealing.getCost(population.get(0)) < bestCost) {
+                bestPath = population.get(0);
+                bestCost = Annealing.getCost(bestPath);
+            }
+
+
+            if (generation % 100 == 0)
+                System.out.println("Selection done " + generation + " Best cost: " + bestCost);
+
+            generation++;
 
         }
 
+        System.out.println("Generation: " + generation);
         System.out.println("Best path: " + Arrays.toString(bestPath));
         System.out.println("Best Cost: " + bestCost);
-        //writeStats(statsFile, bestCost);
-        //writePath(pathFile, bestPath);
+
     }
 
 }

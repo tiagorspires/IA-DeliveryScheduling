@@ -2,7 +2,6 @@ public class FragilePackage extends Package implements Comparable<FragilePackage
 
     private final double breakingChance;
     private final int breakingCost;
-    private double cost = 0;
     public FragilePackage(int x, int y, double breakingChance, int breakingCost) {
         super(x, y);
         this.breakingChance = breakingChance;
@@ -15,10 +14,6 @@ public class FragilePackage extends Package implements Comparable<FragilePackage
 
     public int getBreakingCost() {
         return breakingCost;
-    }
-
-    public void setCost(double cost) {
-        this.cost = cost;
     }
 
     @Override
@@ -37,12 +32,6 @@ public class FragilePackage extends Package implements Comparable<FragilePackage
     }
 
     public String toString(){
-        return "( F " + getX() + " " + getY() + " " + breakingChance + " " + breakingCost + " )";
-    }
-
-    public boolean equals(Object o) {
-        if (o == this) return true;
-        if (!(o instanceof FragilePackage p)) return false;
-        return p.getX() == getX() && p.getY() == getY() && p.breakingChance == breakingChance && p.breakingCost == breakingCost;
+        return String.format("( F %d %d %.3f %d )", getX(), getY(), breakingChance, breakingCost);
     }
 }

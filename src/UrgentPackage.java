@@ -33,13 +33,7 @@ public class UrgentPackage extends Package implements Comparable<UrgentPackage>{
     }
 
     public String toString(){
-        return "( U " + getX() + " " + getY() +  " " + deliveryTime + " )";
-    }
-
-    public boolean equals(Object o) {
-        if (o == this) return true;
-        if (!(o instanceof UrgentPackage p)) return false;
-        return p.getX() == getX() && p.getY() == getY() && p.deliveryTime == deliveryTime;
+        return String.format("( U %d %d %d )", getX(), getY(), (int) deliveryTime);
     }
 
     public void setDeliveryTime(double i) {
