@@ -56,6 +56,11 @@ public class Main {
                     HillClimbing.solveWithHillClimbingMenu(scanner);
                     break;
                 case 5:
+                    if (packages == null) {
+                        System.out.println("You need to generate the packages first");
+                        break;
+                    }
+                    Genetic.solveWithGeneticMenu(scanner);
                     break;
             }
         }
