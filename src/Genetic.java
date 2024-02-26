@@ -52,6 +52,7 @@ public class Genetic {
                             break;
                         case 3:
                         case 4:
+
                             break;
                         case 5:
                             long startTime = System.currentTimeMillis();
@@ -92,20 +93,16 @@ public class Genetic {
     }
 
     public static void solve(Package[] packages) {
-        ArrayList<Package[]> population = new ArrayList<>(populationSize + childrenSize); // population of paths
+        Package[][] population = new Package[populationSize + childrenSize][packages.length]; // population of paths
         Package[] bestPath = new Package[packages.length];
+        double[] costs = new double[populationSize + childrenSize];
         double bestCost = Integer.MAX_VALUE;
         int generation = 0;
 
         // Generate  random initial population
         for (int i = 0; i < populationSize; i++) {
-            population.add(shuffle(packages.clone()));
+            population[i] = shuffle(packages.clone());
         }
-
-        for (int i = 0; i < childrenSize; i++) {
-            population.add(new Package[packages.length]);
-        }
-
 
         while (generation < numGenerations) {
 
@@ -113,26 +110,43 @@ public class Genetic {
             for (int i = 0; i < childrenSize; i++) {
                 int parent1 = (int) (Math.random() * populationSize);
                 int parent2 = (int) (Math.random() * populationSize);
-                crossover(population.get(parent1), population.get(parent2), population.get(populationSize + i));
+                crossover(population[parent1], population[parent2], population[populationSize + i]);
             }
 
             // Mutation
-            for (Package[] p : population.subList(populationSize, populationSize + childrenSize)) {
+            for (int i = populationSize; i < populationSize + childrenSize; i++) {
                 if (Math.random() < mutationProb) {
-                    int randomIndex1 = (int) (Math.random() * (p.length - 1));
-                    int randomIndex2 = (int) (Math.random() * (p.length - 1));
+                    int randomIndex1 = (int) (Math.random() * (packages.length - 1));
+                    int randomIndex2 = (int) (Math.random() * (packages.length - 1));
 
-                    Package temp = p[randomIndex1];
-                    p[randomIndex1] = p[randomIndex2];
-                    p[randomIndex2] = temp;
+                    Package temp = population[i][randomIndex1];
+                    population[i][randomIndex1] = population[i][randomIndex2];
+                    population[i][randomIndex2] = temp;
+
                 }
             }
             // 738 + 760 + 148 + 4776
 
-            population.sort(Comparator.comparingDouble(Annealing::getCost));
+            for (int i = 0; i < populationSize + childrenSize; i++) {
+                costs[i] = Annealing.getCost(population[i]);
+            }
+            //sort the population by cost
+            for (int i = 0; i < populationSize + childrenSize; i++) {
+                for (int j = i + 1; j < populationSize + childrenSize; j++) {
+                    if (costs[i] > costs[j]) {
+                        double temp = costs[i];
+                        costs[i] = costs[j];
+                        costs[j] = temp;
 
-            if (Annealing.getCost(population.get(0)) < bestCost) {
-                bestPath = population.get(0);
+                        Package[] tempPath = population[i];
+                        population[i] = population[j];
+                        population[j] = tempPath;
+                    }
+                }
+            }
+
+            if (Annealing.getCost(population[0]) < bestCost) {
+                bestPath = population[0];
                 bestCost = Annealing.getCost(bestPath);
             }
 
@@ -143,8 +157,6 @@ public class Genetic {
             generation++;
 
         }
-
-
 
         System.out.println("Generation: " + generation);
         System.out.println("Best path: " + Arrays.toString(bestPath));

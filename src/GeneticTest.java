@@ -1,5 +1,6 @@
 import org.junit.jupiter.api.Test;
 
+import javax.swing.*;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,6 +48,11 @@ public class GeneticTest {
 
     @Test
     public void TestSolve() {
+
+        Genetic.mutationProb = 0.2;
+        Genetic.numGenerations = 10_000;
+        double time = System.currentTimeMillis();
         Genetic.solve(Main.generatePackages(500, 100, 100));
+        System.out.println("Execution time: " + (System.currentTimeMillis() - time) + "ms");
     }
 }
