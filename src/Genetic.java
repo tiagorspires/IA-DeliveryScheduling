@@ -81,14 +81,18 @@ public class Genetic {
         int index2 = index1 + 2;
 
         //order based crossover
-        List<Package> rest = new ArrayList<>(Arrays.asList(parent2));
-        rest.removeAll(Arrays.asList(parent1).subList(index1, index2));
+        Package crossover1 = parent1[index1];
+        Package crossover2 = parent1[index1 + 1];
+
         int restIndex = 0;
         for(int i = 0; i < parent2.length; i++){
             if(i >= index1 && i < index2){
                 child[i] = parent1[i];
             }else{
-                child[i] = rest.get(restIndex);
+                while(crossover1 == parent2[restIndex] || crossover2 == parent2[restIndex]){
+                    restIndex++;
+                }
+                child[i] = parent2[restIndex];
                 restIndex++;
             }
         }
@@ -154,7 +158,6 @@ public class Genetic {
                 bestPath = population[0];
                 bestCost = costs[0];
             }
-
 
             if (generation % 100 == 0)
                 System.out.println("Selection done " + generation + " Best cost: " + bestCost);
