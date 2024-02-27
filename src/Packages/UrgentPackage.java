@@ -1,3 +1,5 @@
+package Packages;
+
 public class UrgentPackage extends Package implements Comparable<UrgentPackage>{
 
     private double deliveryTime;
@@ -19,17 +21,17 @@ public class UrgentPackage extends Package implements Comparable<UrgentPackage>{
     @Override
     public double getCost(int x, int y, int totalKm){
         if (deliveryTime > totalKm) {
-            return distance(x, y) * Main.costPerKm + (deliveryTime - totalKm) * Main.costPerKm;
+            return distance(x, y) * COST_PER_KM + (deliveryTime - totalKm) * COST_PER_KM;
         }
-        return distance(x, y) * Main.costPerKm;
+        return distance(x, y) * COST_PER_KM;
     }
 
     @Override
     public double getCost(Package p, int totalKm){
         if (deliveryTime > totalKm + distance(p)){
-            return distance(p) * Main.costPerKm + (deliveryTime - totalKm + distance(p)) * Main.costPerKm;
+            return distance(p) * COST_PER_KM + (deliveryTime - totalKm + distance(p)) * COST_PER_KM;
         }
-        return distance(p) * Main.costPerKm;
+        return distance(p) * COST_PER_KM;
     }
 
     public String toString(){

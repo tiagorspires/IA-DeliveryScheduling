@@ -1,10 +1,13 @@
+import Packages.FragilePackage;
+import Packages.Package;
+import Packages.UrgentPackage;
+
 import java.util.Scanner;
 
 public class Main {
 
     public static int width = 100;
     public static int height = 100;
-    public static double costPerKm = 3;
     public static int urgentMaxDeliveryTime = 240;
     public static int urgentMinDeliveryTime = 100;
     public static int fragileMaxBreakingCost = 3;
@@ -53,7 +56,7 @@ public class Main {
         System.out.println("Current configuration:");
         System.out.println("Width: " + width);
         System.out.println("Height: " + height);
-        System.out.println("Cost per km: " + costPerKm);
+        System.out.println("Cost per km: " + Package.COST_PER_KM);
         System.out.println("Urgent max delivery time: " + urgentMaxDeliveryTime);
         System.out.println("Urgent min delivery time: " + urgentMinDeliveryTime);
         System.out.println("Fragile max breaking cost: " + fragileMaxBreakingCost);
@@ -87,7 +90,7 @@ public class Main {
                     break;
                 case 2:
                     System.out.print("Enter new cost per km: ");
-                    costPerKm = scanner.nextDouble();
+                    Package.COST_PER_KM = scanner.nextDouble();
                     break;
                 case 3:
                     changeDeliveryTimeBounds(scanner);
@@ -138,9 +141,12 @@ public class Main {
         System.out.print("Enter new fragile min breaking chance: ");
         fragileMinBreakingChance = scanner.nextDouble();
 
-        if (fragileMaxBreakingChance <= fragileMinBreakingChance ||
-                fragileMaxBreakingChance <= 0 || fragileMaxBreakingChance >= 1 ||
-                fragileMinBreakingChance <= 0 || fragileMinBreakingChance >= 1) {
+        if (
+                fragileMaxBreakingChance <= fragileMinBreakingChance ||
+                fragileMaxBreakingChance <= 0 ||
+                fragileMaxBreakingChance >= 1 ||
+                fragileMinBreakingChance <= 0
+        ) {
             System.out.println("Error: Max breaking chance must be greater than min breaking chance, and both must be between 0 and 1.");
             changeBreakingChanceBounds(scanner); // Recursive call to retry input
         }

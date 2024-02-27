@@ -1,5 +1,7 @@
-public class Package {
+package Packages;
 
+public class Package {
+    public static double COST_PER_KM = 3;
     private final int x;
     private final int y;
 
@@ -26,11 +28,11 @@ public class Package {
     }
 
     public double getCost(int x, int y, int totalKm){
-        return distance(x, y) * Main.costPerKm;
+        return distance(x, y) * COST_PER_KM;
     }
 
     public double getCost(Package p, int totalKm){
-        return distance(p) * Main.costPerKm;
+        return distance(p) * COST_PER_KM;
     }
 
     public String toString(){
