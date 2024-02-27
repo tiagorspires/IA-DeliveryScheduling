@@ -1,7 +1,5 @@
 import java.util.Scanner;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
 
     public static int width = 100;
@@ -15,188 +13,208 @@ public class Main {
     public static double fragileMinBreakingChance = 0.0001;
 
     public static Package[] packages;
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        int option = 0;
+        int option;
 
-        while (option != 5) {
+        do {
             System.out.println("Welcome to the package delivery system\n");
-            System.out.println("1. Generate packages");
-            System.out.println("2. Solve with greedy");
-            System.out.println("3. Solve with simulated annealing");
-            System.out.println("4. Solve with Hill Climbing algorithm");
-            System.out.println("5. Solve with genetic algorithm");
-            System.out.println("6. Exit");
+            displayCurrentConfiguration();
 
+            System.out.println("1. Change configuration");
+            System.out.println("2. Generate packages");
+            System.out.println("3. Exit\n");
+
+            System.out.print("Enter your option: ");
             option = scanner.nextInt();
 
             switch (option) {
                 case 1:
-                    generatePackageMenu(scanner);
+                    configureSystem(scanner);
                     break;
                 case 2:
-                    if (packages == null) {
-                        System.out.println("You need to generate the packages first");
-                        break;
+                    generatePackagesMenu(scanner);
+                    if (packages != null) {
+                        solvePackagesMenu(scanner);
                     }
-                    Greedy.solveWithGreedyMenu(scanner);
                     break;
                 case 3:
-                    if (packages == null) {
-                        System.out.println("You need to generate the packages first");
-                        break;
-                    }
-                    Annealing.solveWithAnnealingMenu(scanner);
+                    System.out.println("Exiting the system. Goodbye!");
                     break;
-                case 4:
-                    if (packages == null) {
-                        System.out.println("You need to generate the packages first");
-                        break;
-                    }
-                    HillClimbing.solveWithHillClimbingMenu(scanner);
-                    break;
-                case 5:
-                    if (packages == null) {
-                        System.out.println("You need to generate the packages first");
-                        break;
-                    }
-                    Genetic.solveWithGeneticMenu(scanner);
-                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
             }
-        }
 
+        } while (option != 3);
     }
 
-    public static void generatePackageMenu(Scanner scanner) {
-        System.out.println("Generate packages\n");
-        int option = 0;
-        while (option != 7) {
-            System.out.println("Current configuration:");
-            System.out.println("Width: " + width);
-            System.out.println("Height: " + height);
-            System.out.println("Cost per km: " + costPerKm);
-            System.out.println("Urgent max delivery time: " + urgentMaxDeliveryTime);
-            System.out.println("Urgent min delivery time: " + urgentMinDeliveryTime);
-            System.out.println("Fragile max breaking cost: " + fragileMaxBreakingCost);
-            System.out.println("Fragile min breaking cost: " + fragileMinBreakingCost);
-            System.out.println("Fragile max breaking chance: " + fragileMaxBreakingChance);
-            System.out.println("Fragile min breaking chance: " + fragileMinBreakingChance);
+    public static void displayCurrentConfiguration() {
+        System.out.println("Current configuration:");
+        System.out.println("Width: " + width);
+        System.out.println("Height: " + height);
+        System.out.println("Cost per km: " + costPerKm);
+        System.out.println("Urgent max delivery time: " + urgentMaxDeliveryTime);
+        System.out.println("Urgent min delivery time: " + urgentMinDeliveryTime);
+        System.out.println("Fragile max breaking cost: " + fragileMaxBreakingCost);
+        System.out.println("Fragile min breaking cost: " + fragileMinBreakingCost);
+        System.out.println("Fragile max breaking chance: " + fragileMaxBreakingChance);
+        System.out.println("Fragile min breaking chance: " + fragileMinBreakingChance + "\n");
+    }
 
-            System.out.println("1. Change size");
+    public static void configureSystem(Scanner scanner) {
+        int option;
+
+        do {
+            displayCurrentConfiguration();
+
+            System.out.println("1. Change width and height");
             System.out.println("2. Change cost per km");
             System.out.println("3. Change urgent delivery time bounds");
             System.out.println("4. Change fragile breaking cost bounds");
             System.out.println("5. Change fragile breaking chance bounds");
-            System.out.println("6. Generate packages");
-            System.out.println("7. Back");
+            System.out.println("6. Back\n");
 
+            System.out.print("Enter your option: ");
             option = scanner.nextInt();
 
             switch (option) {
                 case 1:
-                    System.out.println("Enter the new width:");
+                    System.out.print("Enter new width: ");
                     width = scanner.nextInt();
-                    System.out.println("Enter the new height:");
+                    System.out.print("Enter new height: ");
                     height = scanner.nextInt();
                     break;
                 case 2:
-                    System.out.println("Enter the new cost per km:");
+                    System.out.print("Enter new cost per km: ");
                     costPerKm = scanner.nextDouble();
                     break;
                 case 3:
-                    while (true) {
-                        System.out.println("Enter the new urgent max delivery time:");
-                        urgentMaxDeliveryTime = scanner.nextInt();
-                        System.out.println("Enter the new urgent min delivery time:");
-                        urgentMinDeliveryTime = scanner.nextInt();
-
-                        if (urgentMaxDeliveryTime <= urgentMinDeliveryTime) {
-                            System.out.println("The max delivery time must be greater than the min delivery time");
-                            continue;
-                        }
-
-                        if (urgentMaxDeliveryTime <= 0 || urgentMinDeliveryTime <= 0) {
-                            System.out.println("The delivery time must be greater than 0");
-                            continue;
-                        }
-
-                        break;
-                    }
+                    changeDeliveryTimeBounds(scanner);
                     break;
                 case 4:
-                    while (true) {
-                        System.out.println("Enter the new fragile max breaking cost:");
-                        fragileMaxBreakingCost = scanner.nextInt();
-                        System.out.println("Enter the new fragile min breaking cost:");
-                        fragileMinBreakingCost = scanner.nextInt();
-
-                        if (fragileMaxBreakingCost <= fragileMinBreakingCost) {
-                            System.out.println("The max breaking cost must be greater than the min breaking cost");
-                            continue;
-                        }
-
-                        if (fragileMaxBreakingCost <= 0 || fragileMinBreakingChance <= 0) {
-                            System.out.println("The breaking cost must be greater than 0");
-                            continue;
-                        }
-
-                        break;
-                    }
+                    changeBreakingCostBounds(scanner);
                     break;
                 case 5:
-                    while (true) {
-                        System.out.println("Enter the new fragile max breaking chance:");
-                        fragileMaxBreakingChance = scanner.nextDouble();
-                        System.out.println("Enter the new fragile min breaking chance:");
-                        fragileMinBreakingChance = scanner.nextDouble();
-
-                        if (fragileMaxBreakingChance <= fragileMinBreakingChance) {
-                            System.out.println("The max breaking chance must be greater than the min breaking chance");
-                            continue;
-                        }
-
-                        if (fragileMaxBreakingChance <= 0 || fragileMaxBreakingChance >= 1) {
-                            System.out.println("The max breaking chance must be between 0 and 1");
-                            continue;
-                        }
-
-                        if (fragileMinBreakingChance <= 0 || fragileMinBreakingChance >= 1) {
-                            System.out.println("The min breaking chance must be between 0 and 1");
-                            continue;
-                        }
-
-                        break;
-                    }
-
+                    changeBreakingChanceBounds(scanner);
                     break;
                 case 6:
-                    while (true) {
-                        System.out.println("Enter the number of packages:");
-                        int n = scanner.nextInt();
-                        if (n <= 0) {
-                            System.out.println("The number of packages must be greater than 0");
-                            continue;
-                        }
-                        packages = generatePackages(n, width, height);
-                        break;
-                    }
-                    option = 7;
-                    break;
-                case 7:
+                    System.out.println("Returning to main menu.");
                     break;
                 default:
-                    System.out.println("Invalid option");
-                    break;
+                    System.out.println("Invalid option. Please try again.");
+            }
+
+        } while (option != 6);
+    }
+
+    public static void changeDeliveryTimeBounds(Scanner scanner) {
+        System.out.print("Enter new urgent max delivery time: ");
+        urgentMaxDeliveryTime = scanner.nextInt();
+        System.out.print("Enter new urgent min delivery time: ");
+        urgentMinDeliveryTime = scanner.nextInt();
+
+        if (urgentMaxDeliveryTime <= urgentMinDeliveryTime) {
+            System.out.println("Error: Max delivery time must be greater than min delivery time.");
+            changeDeliveryTimeBounds(scanner); // Recursive call to retry input
+        }
+    }
+
+    public static void changeBreakingCostBounds(Scanner scanner) {
+        System.out.print("Enter new fragile max breaking cost: ");
+        fragileMaxBreakingCost = scanner.nextInt();
+        System.out.print("Enter new fragile min breaking cost: ");
+        fragileMinBreakingCost = scanner.nextInt();
+
+        if (fragileMaxBreakingCost <= fragileMinBreakingCost) {
+            System.out.println("Error: Max breaking cost must be greater than min breaking cost.");
+            changeBreakingCostBounds(scanner); // Recursive call to retry input
+        }
+    }
+
+    public static void changeBreakingChanceBounds(Scanner scanner) {
+        System.out.print("Enter new fragile max breaking chance: ");
+        fragileMaxBreakingChance = scanner.nextDouble();
+        System.out.print("Enter new fragile min breaking chance: ");
+        fragileMinBreakingChance = scanner.nextDouble();
+
+        if (fragileMaxBreakingChance <= fragileMinBreakingChance ||
+                fragileMaxBreakingChance <= 0 || fragileMaxBreakingChance >= 1 ||
+                fragileMinBreakingChance <= 0 || fragileMinBreakingChance >= 1) {
+            System.out.println("Error: Max breaking chance must be greater than min breaking chance, and both must be between 0 and 1.");
+            changeBreakingChanceBounds(scanner); // Recursive call to retry input
+        }
+    }
+
+    public static void generatePackagesMenu(Scanner scanner) {
+        System.out.println("Generating packages...\n");
+
+        while (true) {
+            System.out.print("Enter the number of packages: ");
+            int n = scanner.nextInt();
+
+            if (n <= 0) {
+                System.out.println("Error: Number of packages must be greater than 0.");
+            } else {
+                packages = generatePackages(n, width, height);
+                System.out.println("Packages generated successfully.\n");
+                break;
             }
         }
     }
 
-    public static double distance(Package p1, Package p2) {
-        return Math.sqrt(Math.pow(p1.getX() - p2.getX(), 2) + Math.pow(p1.getY() - p2.getY(), 2));
+    public static void solvePackagesMenu(Scanner scanner) {
+        int option;
+
+        System.out.println("Solving packages...\n");
+
+        do {
+            System.out.println("1. Solve with greedy");
+            System.out.println("2. Solve with simulated annealing");
+            System.out.println("3. Solve with Hill Climbing algorithm");
+            System.out.println("4. Solve with genetic algorithm");
+            System.out.println("5. Back\n");
+
+            System.out.print("Enter your option: ");
+            option = scanner.nextInt();
+
+            switch (option) {
+                case 1:
+                    solveWithGreedy(scanner);
+                    break;
+                case 2:
+                    solveWithSimulatedAnnealing(scanner);
+                    break;
+                case 3:
+                    solveWithHillClimbing(scanner);
+                    break;
+                case 4:
+                    solveWithGeneticAlgorithm(scanner);
+                    break;
+                case 5:
+                    System.out.println("Returning to main menu.");
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+
+        } while (option != 5);
     }
 
-    public static double distance(Package p1, int x, int y) {
-        return Math.sqrt(Math.pow(p1.getX() - x, 2) + Math.pow(p1.getY() - y, 2));
+    public static void solveWithGreedy(Scanner scanner) {
+        Greedy.solveWithGreedyMenu(scanner);
+    }
+
+    public static void solveWithSimulatedAnnealing(Scanner scanner) {
+        Annealing.solveWithAnnealingMenu(scanner);
+    }
+
+    public static void solveWithHillClimbing(Scanner scanner) {
+        HillClimbing.solveWithHillClimbingMenu(scanner);
+    }
+
+    public static void solveWithGeneticAlgorithm(Scanner scanner) {
+        Genetic.solveWithGeneticMenu(scanner);
     }
 
     public static Package[] generatePackages(int n, int width, int height) {
