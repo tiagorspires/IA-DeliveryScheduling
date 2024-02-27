@@ -56,4 +56,34 @@ public class Package {
         return espectedCost;
     }
 
+    public double AproxDistance(Package p){
+        return Math.pow(this.x - p.getX(), 2) + Math.pow(this.y - p.getY(),2);
+    }
+
+    public double AproxDistance(int x, int y){
+        return Math.pow(this.x - x, 2) + Math.pow(this.y - y,2);
+    }
+
+    public double getAproxCost(int x, int y, int totalKm){
+        return AproxDistance(x, y) * COST_PER_KM;
+    }
+
+    public double getAproxCost(Package p, int totalKm){
+        return AproxDistance(p) * COST_PER_KM;
+    }
+
+    public static double getAproxCost(Package[] packages){
+        double espectedCost = 0;
+        double currectDistance = 0;
+
+        espectedCost += packages[0].getAproxCost(0, 0, 0);
+
+        for (int i = 1; i < packages.length; i++) {
+            espectedCost += packages[i].getAproxCost(packages[i - 1], (int) currectDistance);
+            currectDistance += packages[i].AproxDistance(packages[i - 1]);
+        }
+
+        return espectedCost;
+    }
+
 }

@@ -108,7 +108,7 @@ public class Genetic {
         // Generate  random initial population
         for (int i = 0; i < populationSize; i++) {
             population[i] = shuffle(packages.clone());
-            costs[i] = Package.getCost(population[i]);
+            costs[i] = Package.getAproxCost(population[i]);
         }
 
         while (generation < numGenerations) {
@@ -118,7 +118,7 @@ public class Genetic {
                 int parent1 = (int) (Math.random() * populationSize);
                 int parent2 = (int) (Math.random() * populationSize);
                 crossover(population[parent1], population[parent2], population[populationSize + i]);
-                costs[populationSize + i] = Package.getCost(population[populationSize + i]);
+                costs[populationSize + i] = Package.getAproxCost(population[populationSize + i]);
             }
 
             // Mutation
@@ -131,13 +131,13 @@ public class Genetic {
                     population[i][randomIndex1] = population[i][randomIndex2];
                     population[i][randomIndex2] = temp;
 
-                    costs[i] = Package.getCost(population[i]);
+                    costs[i] = Package.getAproxCost(population[i]);
                 }
             }
             // 738 + 760 + 148 + 4776
 
             for (int i = populationSize; i < childrenSize; i++) {
-                costs[i] = Package.getCost(population[i]);
+                costs[i] = Package.getAproxCost(population[i]);
             }
             //sort the first 100 population by cost
             for (int i = 0; i < populationSize + childrenSize; i++) {
@@ -168,7 +168,7 @@ public class Genetic {
 
         System.out.println("Generation: " + generation);
         System.out.println("Best path: " + Arrays.toString(bestPath));
-        System.out.println("Best Cost: " + bestCost);
+        System.out.println("Best Cost: " + Package.getCost(bestPath));
 
     }
 
