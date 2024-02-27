@@ -3,7 +3,7 @@ import Packages.Package;
 import java.util.*;
 
 public class Genetic {
-
+        private static final Random random = new Random();
         public static int populationSize = 100;
         public static int numGenerations = 1_000;
         public static double mutationProb = 0.2;
@@ -77,7 +77,7 @@ public class Genetic {
     }
 
     public static void crossover(Package[] parent1, Package[] parent2, Package[] child){
-        int index1 = (int) (Math.random() * (parent1.length - 2));
+        int index1 = random.nextInt(parent1.length - 2);
         int index2 = index1 + 2;
 
         //order based crossover
@@ -112,20 +112,19 @@ public class Genetic {
         }
 
         while (generation < numGenerations) {
-
             // Reproduction
             for (int i = 0; i < childrenSize; i++) {
-                int parent1 = (int) (Math.random() * populationSize);
-                int parent2 = (int) (Math.random() * populationSize);
+                int parent1 = random.nextInt(populationSize);
+                int parent2 = random.nextInt(populationSize);
                 crossover(population[parent1], population[parent2], population[populationSize + i]);
                 costs[populationSize + i] = Package.getAproxCost(population[populationSize + i]);
             }
 
             // Mutation
             for (int i = populationSize; i < populationSize + childrenSize; i++) {
-                if (Math.random() < mutationProb) {
-                    int randomIndex1 = (int) (Math.random() * (packages.length - 1));
-                    int randomIndex2 = (int) (Math.random() * (packages.length - 1));
+                if (random.nextInt(100) < 20 ) {
+                    int randomIndex1 = random.nextInt(packages.length);
+                    int randomIndex2 = random.nextInt(packages.length);
 
                     Package temp = population[i][randomIndex1];
                     population[i][randomIndex1] = population[i][randomIndex2];
@@ -158,9 +157,6 @@ public class Genetic {
                 bestPath = population[0];
                 bestCost = costs[0];
             }
-
-            if (generation % 100 == 0)
-                System.out.println("Selection done " + generation + " Best cost: " + bestCost);
 
             generation++;
 
