@@ -186,16 +186,16 @@ public class Main {
 
             switch (option) {
                 case 1:
-                    solveWithGreedy(scanner);
+                    Greedy.solveWithGreedyMenu(scanner);
                     break;
                 case 2:
-                    solveWithSimulatedAnnealing(scanner);
+                    Annealing.solveWithAnnealingMenu(scanner);
                     break;
                 case 3:
-                    solveWithHillClimbing(scanner);
+                    HillClimbing.solveWithHillClimbingMenu(scanner);
                     break;
                 case 4:
-                    solveWithGeneticAlgorithm(scanner);
+                    Genetic.solveWithGeneticMenu(scanner);
                     break;
                 case 5:
                     System.out.println("Returning to main menu.");
@@ -205,22 +205,6 @@ public class Main {
             }
 
         } while (option != 5);
-    }
-
-    public static void solveWithGreedy(Scanner scanner) {
-        Greedy.solveWithGreedyMenu(scanner);
-    }
-
-    public static void solveWithSimulatedAnnealing(Scanner scanner) {
-        Annealing.solveWithAnnealingMenu(scanner);
-    }
-
-    public static void solveWithHillClimbing(Scanner scanner) {
-        HillClimbing.solveWithHillClimbingMenu(scanner);
-    }
-
-    public static void solveWithGeneticAlgorithm(Scanner scanner) {
-        Genetic.solveWithGeneticMenu(scanner);
     }
 
     public static Package[] generatePackages(int n, int width, int height) {

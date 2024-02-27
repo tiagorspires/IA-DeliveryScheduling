@@ -1,15 +1,9 @@
 import Packages.Package;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import java.util.concurrent.Callable;
 
 public class PerformanceTest {
     private static final Package[] packages = Main.generatePackages(500, 100, 100);
-
-    @BeforeAll
-    public static void setUp() {
-    }
-
 
     public void Test(Callable<Package[]> algo, String name) {
         double total = 0;
@@ -24,7 +18,7 @@ public class PerformanceTest {
                 Package[] path = algo.call();
 
                 totalTime += (System.currentTimeMillis() - time);
-                total += Annealing.getCost(path);
+                total += Package.getCost(path);
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
             }

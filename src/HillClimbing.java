@@ -64,55 +64,6 @@ public class HillClimbing {
             }
         }
     }
-
-    public static double getCost(Package[] packages) {
-        double espectedCost = 0;
-        double currectDistance = 0;
-
-        espectedCost += packages[0].getCost(0, 0, 0);
-
-        for (int i = 1; i < packages.length; i++) {
-            espectedCost += packages[i].getCost(packages[i - 1], (int) currectDistance);
-            currectDistance += packages[i].distance(packages[i - 1]);
-        }
-
-        return espectedCost;
-    }
-
-    public static void mutation1(Package[] newPath) {
-        int randomIndex1 = (int) (Math.random() * (newPath.length - 1));
-        //index1 should be less than index2
-        int randomIndex2 = (int) (Math.random() * (newPath.length - randomIndex1 - 1) + randomIndex1 + 1);
-
-        //move the elements between index1 and index2 one position to the right
-        Package temp = newPath[randomIndex2];
-        System.arraycopy(newPath, randomIndex1, newPath, randomIndex1 + 1, randomIndex2 - randomIndex1);
-        //put the element in index1 in index2
-        newPath[randomIndex1] = temp;
-    }
-
-    public static void mutation2(Package[] newPath) {
-        int randomIndex1 = (int) (Math.random() * (newPath.length - 2));
-        int range = (int) (Math.random() * ((newPath.length - randomIndex1) / 2));
-
-        Package[] temp = Arrays.copyOfRange(newPath, randomIndex1, randomIndex1 + range);
-
-        System.arraycopy(newPath, randomIndex1 + range, newPath, randomIndex1, range);
-        System.arraycopy(temp, 0, newPath, randomIndex1 + range, range);
-    }
-
-    public static void mutation3(Package[] newPath) {
-        int randomIndex1 = (int) (Math.random() * (newPath.length));
-        int randomIndex2 = (int) (Math.random() * (newPath.length - randomIndex1 - 1) + randomIndex1 + 1);
-
-        //reverse the elements between index1 and index2
-        for (int i = 0; i < (randomIndex2 - randomIndex1) / 2; i++) {
-            Package temp = newPath[randomIndex1 + i];
-            newPath[randomIndex1 + i] = newPath[randomIndex2 - i];
-            newPath[randomIndex2 - i] = temp;
-        }
-    }
-
     public static void mutate(Package[] newPath) {
         //probabilities:
         // mutation1 89
@@ -121,11 +72,11 @@ public class HillClimbing {
 
         int random = (int) (Math.random() * 100);
         if (random < 89) {
-            mutation1(newPath);
+            Mutations.mutation1(newPath);
         } else if (random < 99) {
-            mutation2(newPath);
+            Mutations.mutation2(newPath);
         } else {
-            mutation3(newPath);
+            Mutations.mutation3(newPath);
         }
     }
 
@@ -136,7 +87,7 @@ public class HillClimbing {
         statsWriter = new BufferedWriter(new FileWriter(statsFile));
         pathWriter = new BufferedWriter(new FileWriter(pathFile));
 
-        double bestCost = getCost(packages);
+        double bestCost = Package.getCost(packages);
         Package[] bestPath = packages.clone();
 
         Package[] currentPath = packages;
@@ -164,7 +115,7 @@ public class HillClimbing {
                 mutate(newPath);
             }
 
-            double newCost = getCost(newPath);
+            double newCost = Package.getCost(newPath);
             double delta = newCost - currentCost;
 
             lastMutation++;
@@ -190,8 +141,7 @@ public class HillClimbing {
             iter++;
         }
 
-        pathWriter.write(String.join(",", Arrays.stream(currentPath).map(Object::toString).toArray(String[
-                ]::new)));
+        pathWriter.write(String.join(",", Arrays.stream(currentPath).map(Object::toString).toArray(String[]::new)));
         pathWriter.newLine();
 
         statsWriter.close();

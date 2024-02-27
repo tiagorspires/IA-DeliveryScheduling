@@ -1,10 +1,8 @@
 package Packages;
-
 public class Package {
     public static double COST_PER_KM = 3;
     private final int x;
     private final int y;
-
 
     public Package(int x, int y) {
         this.x = x;
@@ -42,6 +40,20 @@ public class Package {
     // sort packages by distance from last package
     public int compareTo(Package o) {
         return Double.compare(this.distance(this.getX(), this.getY()), o.distance(this.getX(), this.getY()));
+    }
+
+    public static double getCost(Package[] packages){
+        double espectedCost = 0;
+        double currectDistance = 0;
+
+        espectedCost += packages[0].getCost(0, 0, 0);
+
+        for (int i = 1; i < packages.length; i++) {
+            espectedCost += packages[i].getCost(packages[i - 1], (int) currectDistance);
+            currectDistance += packages[i].distance(packages[i - 1]);
+        }
+
+        return espectedCost;
     }
 
 }
