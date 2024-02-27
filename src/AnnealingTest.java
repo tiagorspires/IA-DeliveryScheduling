@@ -26,7 +26,7 @@ public class AnnealingTest {
         for (int i = 0; i < 100; i++) {
             Package[] p = packages.clone();
 
-            Annealing.mutation1(p);
+            Mutations.mutation1(p);
 
             // check if the original set contains the mutated packages
             Set<Package> a = Arrays.stream(p).collect(Collectors.toSet());
@@ -42,7 +42,7 @@ public class AnnealingTest {
         for (int i = 0; i < 100; i++) {
             Package[] p = packages.clone();
 
-            Annealing.mutation2(p);
+            Mutations.mutation2(p);
 
             // check if the original set contains the mutated packages
             Set<Package> a = Arrays.stream(p).collect(Collectors.toSet());
@@ -59,7 +59,7 @@ public class AnnealingTest {
         for (int i = 0; i < 100; i++) {
             Package[] p = packages.clone();
 
-            Annealing.mutation3(p);
+            Mutations.mutation3(p);
 
             // check if the original set contains the mutated packages
             Set<Package> a = Arrays.stream(p).collect(Collectors.toSet());
