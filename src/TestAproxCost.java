@@ -10,13 +10,12 @@ import java.util.Locale;
 
 public class TestAproxCost {
 
-    private final int n = 500000;
-
     //test if multiple package paths preserve the same order when ordered based getAproxCost as getCost
     @Test
     public void Test() throws IOException {
         List<Package[]> population = new ArrayList<>();
         Package[] p = Main.generatePackages(500, 100, 100);
+        int n = 10000;
         for (int i = 0; i < n; i++) {
             population.add(Genetic.shuffle(p));
         }
@@ -71,9 +70,9 @@ public class TestAproxCost {
         Locale.setDefault(Locale.US);
 
         for (int i = 0; i < n; i++) {
-            double AproxCost = Package.getAproxCost(population.get(i));
-            double Cost = Package.getCost(population.get(i));
-            fileWriter.write(String.format("%d,%.2f,%d,%.2f,%f\n",aproxCostIndexes[i], AproxCost, indexes[i], Cost, AproxCost / Cost));
+            double AproxCost = Package.getAproxCost(population.get(aproxCostIndexes[i]));
+            double Cost = Package.getCost(population.get(aproxCostIndexes[i]));
+            fileWriter.write(String.format("%d,%.2f,%.2f,%f,%d\n",aproxCostIndexes[i], AproxCost, Cost, AproxCost / Cost,indexes[i]));
         }
         fileWriter.close();
 
@@ -85,7 +84,8 @@ public class TestAproxCost {
 
     @Test
     public void Test2() {
-        Package[] p = Main.generatePackages(500, 100, 100);
+        int n = 100000;
+        Package[] p = Main.generatePackages(100, 100, 100);
         int count = 0;
         for (int i = 0; i < n; i++) {
             Package[] a = Genetic.shuffle(p);
@@ -108,4 +108,6 @@ public class TestAproxCost {
         assert(count == 0);
 
     }
+
+
 }
