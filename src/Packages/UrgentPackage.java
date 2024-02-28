@@ -21,7 +21,7 @@ public class UrgentPackage extends Package implements Comparable<UrgentPackage>{
     @Override
     public double getCost(int x, int y, int totalKm){
         if (deliveryTime > totalKm) {
-            return distance(x, y) * COST_PER_KM + (deliveryTime - totalKm) * COST_PER_KM;
+            return distance(x, y) * COST_PER_KM + (deliveryTime - totalKm + distance(x,y)) * COST_PER_KM;
         }
         return distance(x, y) * COST_PER_KM;
     }
