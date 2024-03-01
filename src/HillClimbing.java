@@ -15,20 +15,21 @@ public class HillClimbing {
 
     public static void solveWithHillClimbingMenu(Scanner scanner) {
         int option = 0;
-        while (option != 7) {
+        while (option != 4) {
             try {
                 System.out.println("Solve with Hill Climbing\n");
                 System.out.println("Current configuration:");
+                System.out.println("Number of unchanged iterations: " + numUnchangedIterations);
                 System.out.println("Mutation type: " + mutationType + "\n");
 
-                System.out.println("4. Change number of unchanged iterations");
-                System.out.println("5. Change mutation type");
-                System.out.println("6. Solve");
-                System.out.println("7. Back");
+                System.out.println("1. Change number of unchanged iterations");
+                System.out.println("2. Change mutation type");
+                System.out.println("3. Solve");
+                System.out.println("4. Back");
                 option = scanner.nextInt();
 
                 switch (option) {
-                    case 4:
+                    case 1:
                         while (true) {
                             System.out.println("Number of unchanged iterations: ");
                             numUnchangedIterations = scanner.nextInt();
@@ -39,7 +40,7 @@ public class HillClimbing {
                             break;
                         }
                         break;
-                    case 5:
+                    case 2:
                         while (true) {
                             System.out.println("Mutation type 1 or 2: ");
                             mutationType = scanner.nextInt();
@@ -50,7 +51,7 @@ public class HillClimbing {
                             break;
                         }
                         break;
-                    case 6:
+                    case 3:
                         long startTime = System.currentTimeMillis();
                         solve(Main.packages);
                         long endTime = System.currentTimeMillis();

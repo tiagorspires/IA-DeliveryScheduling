@@ -57,31 +57,22 @@ public class TabuSearch {
     public static void solveWithTabuSearchMenu(Scanner scanner) {
         int option = 0;
 
-        while (option != 7) {
+        while (option != 5) {
             try {
                 System.out.println("Solve with TabuSearch\n");
                 System.out.println("Current configuration:");
                 System.out.println("Mutation type: " + mutationType + "\n");
-
-                System.out.println("4. Change number of unchanged iterations");
-                System.out.println("5. Change mutation type");
-                System.out.println("6. Solve");
-                System.out.println("7. Back");
+                System.out.println("Tenure: " + tenure + "\n");
+                System.out.println("Number of unchanged iterations: " + numUnchangedIterations + "\n");
+                System.out.println("1. Change mutation type");
+                System.out.println("2. Change tenure");
+                System.out.println("3. Change number of unchanged iterations");
+                System.out.println("4. Solve");
+                System.out.println("5. Back");
                 option = scanner.nextInt();
 
                 switch (option) {
-                    case 4:
-                        while (true) {
-                            System.out.println("Number of unchanged iterations: ");
-                            numUnchangedIterations = scanner.nextInt();
-                            if (numUnchangedIterations <= 0) {
-                                System.out.println("The number of unchanged iterations must be greater than 0");
-                                continue;
-                            }
-                            break;
-                        }
-                        break;
-                    case 5:
+                    case 1:
                         while (true) {
                             System.out.println("Mutation type 1 or 2: ");
                             mutationType = scanner.nextInt();
@@ -92,7 +83,29 @@ public class TabuSearch {
                             break;
                         }
                         break;
-                    case 6:
+                    case 2:
+                        while (true) {
+                            System.out.println("Tenure: ");
+                            tenure = scanner.nextInt();
+                            if (tenure <= 0) {
+                                System.out.println("The tenure must be greater than 0");
+                                continue;
+                            }
+                            break;
+                        }
+                        break;
+                    case 3:
+                        while (true) {
+                            System.out.println("Number of unchanged iterations: ");
+                            numUnchangedIterations = scanner.nextInt();
+                            if (numUnchangedIterations <= 0) {
+                                System.out.println("The number of unchanged iterations must be greater than 0");
+                                continue;
+                            }
+                            break;
+                        }
+                        break;
+                    case 4:
                         long startTime = System.currentTimeMillis();
                         solve(Main.packages);
                         long endTime = System.currentTimeMillis();

@@ -179,7 +179,8 @@ public class Main {
             System.out.println("2. Solve with simulated annealing");
             System.out.println("3. Solve with Hill Climbing algorithm");
             System.out.println("4. Solve with genetic algorithm");
-            System.out.println("5. Back\n");
+            System.out.println("5. Solve with tabu search");
+            System.out.println("6. Back\n");
 
             System.out.print("Enter your option: ");
             option = scanner.nextInt();
@@ -198,13 +199,16 @@ public class Main {
                     Genetic.solveWithGeneticMenu(scanner);
                     break;
                 case 5:
+                    TabuSearch.solveWithTabuSearchMenu(scanner);
+                    break;
+                case 6:
                     System.out.println("Returning to main menu.");
                     break;
                 default:
                     System.out.println("Invalid option. Please try again.");
             }
 
-        } while (option != 5);
+        } while (option != 6);
     }
 
     public static Package[] generatePackages(int n, int width, int height) {

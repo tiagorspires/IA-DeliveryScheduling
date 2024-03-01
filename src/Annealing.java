@@ -27,6 +27,7 @@ public class Annealing {
                 System.out.println("Start temperature: " + startTemperature);
                 System.out.println("Cooling rate: " + coolingRate);
                 System.out.println("End temperature: " + endTemperature);
+                System.out.println("Number of unchanged iterations: " + numUnchangedIterations);
                 System.out.println("Mutation type: " + mutationType + "\n");
 
                 System.out.println("1. Change start temperature");
