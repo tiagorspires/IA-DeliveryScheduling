@@ -76,7 +76,9 @@ public class Genetic {
         return list.toArray(new Package[packages.length]);
     }
 
-    public static void crossover(Package[] parent1, Package[] parent2, Package[] child){
+    public static Package[] crossover(Package[] parent1, Package[] parent2){
+        Package[] child = new Package[parent1.length];
+
         int index1 = random.nextInt(parent1.length - 2);
         int index2 = index1 + 2;
 
@@ -96,48 +98,46 @@ public class Genetic {
                 restIndex++;
             }
         }
+        return child;
+    }
+
+    private static Package[] randomMutate(Package[] packages) {
+        if (random.nextInt(100) < 20 ) {
+            int randomIndex1 = random.nextInt(packages.length);
+            int randomIndex2 = random.nextInt(packages.length);
+
+            Package temp = packages[randomIndex1];
+            packages[randomIndex1] = packages[randomIndex2];
+            packages[randomIndex2] = temp;
+        }
+        return packages;
     }
 
     public static void solve(Package[] packages) {
         Package[][] population = new Package[populationSize + childrenSize][packages.length]; // population of paths
         Package[] bestPath = new Package[packages.length];
-        double[] costs = new double[populationSize + childrenSize];
+        double[] costs;
         double bestCost = Integer.MAX_VALUE;
+
         int generation = 0;
+        int genSinceImprovement = 0;
 
-        // Generate  random initial population
-        for (int i = 0; i < populationSize; i++) {
-            population[i] = shuffle(packages.clone());
-            costs[i] = Package.getAproxCost(population[i]);
-        }
 
-        while (generation < numGenerations) {
-            // Reproduction
-            for (int i = 0; i < childrenSize; i++) {
-                int parent1 = random.nextInt(populationSize);
-                int parent2 = random.nextInt(populationSize);
-                crossover(population[parent1], population[parent2], population[populationSize + i]);
-                costs[populationSize + i] = Package.getAproxCost(population[populationSize + i]);
-            }
+        population = Arrays.stream(population).map(p -> shuffle(packages.clone())).toArray(Package[][]::new);
+        costs = Arrays.stream(population).map(Package::getAproxCost).mapToDouble(Double::doubleValue).toArray();
 
-            // Mutation
-            for (int i = populationSize; i < populationSize + childrenSize; i++) {
-                if (random.nextInt(100) < 20 ) {
-                    int randomIndex1 = random.nextInt(packages.length);
-                    int randomIndex2 = random.nextInt(packages.length);
+        while (genSinceImprovement < 100) {
 
-                    Package temp = population[i][randomIndex1];
-                    population[i][randomIndex1] = population[i][randomIndex2];
-                    population[i][randomIndex2] = temp;
+            //functional implementation
+            Package[][] finalPopulation = population;
+            Package[][] tempA = Arrays.stream(new Package[childrenSize])
+                    .map(p -> randomMutate(crossover(finalPopulation[random.nextInt(populationSize)], finalPopulation[random.nextInt(populationSize)])))
+                    .toArray(Package[][]::new);
 
-                    costs[i] = Package.getAproxCost(population[i]);
-                }
-            }
-            // 738 + 760 + 148 + 4776
+            System.arraycopy(tempA, 0, population, populationSize, childrenSize);
+            double[] tempC = Arrays.stream(tempA).map(Package::getAproxCost).mapToDouble(Double::doubleValue).toArray();
+            System.arraycopy(tempC, 0, costs, populationSize, childrenSize);
 
-            for (int i = populationSize; i < childrenSize; i++) {
-                costs[i] = Package.getAproxCost(population[i]);
-            }
             //sort the first 100 population by cost
             for (int i = 0; i < populationSize + childrenSize; i++) {
                 for (int j = i + 1; j < populationSize + childrenSize; j++) {
@@ -156,10 +156,12 @@ public class Genetic {
             if (costs[0] < bestCost) {
                 bestPath = population[0];
                 bestCost = costs[0];
+                genSinceImprovement = 0;
+            } else {
+                genSinceImprovement++;
             }
 
             generation++;
-
         }
 
         System.out.println("Generation: " + generation);

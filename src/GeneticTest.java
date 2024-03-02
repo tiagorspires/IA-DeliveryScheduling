@@ -30,9 +30,7 @@ public class GeneticTest {
             Package[] parent1 = Genetic.shuffle(packages);
             Package[] parent2 = Genetic.shuffle(packages);
 
-            Package[] child = new Package[packages.length];
-
-            Genetic.crossover(parent1, parent2, child);
+            Package[] child = Genetic.crossover(parent1, parent2);
 
             Set<Package> a = Arrays.stream(parent1).collect(Collectors.toSet());
 

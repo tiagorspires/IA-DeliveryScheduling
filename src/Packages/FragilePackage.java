@@ -20,11 +20,7 @@ public class FragilePackage extends Package implements Comparable<FragilePackage
     }
 
     public double getAproxCost(int x, int y, int totalKm){
-        return AproxDistance(x, y) * COST_PER_KM + breakingCost * breakingCost * (1 - Math.pow(1 - breakingChance, AproxDistance(x, y) + totalKm));
-    }
-
-    public double getAproxCost(Package p,int totalKm){
-        return AproxDistance(p) * COST_PER_KM + breakingCost * breakingCost * (1 - Math.pow(1 - breakingChance, AproxDistance(p) + totalKm));
+        return AproxDistance(x, y) * COST_PER_KM + breakingCost * (1 - Math.pow(1 - breakingChance, AproxDistance(x, y) + totalKm));
     }
 
     @Override
