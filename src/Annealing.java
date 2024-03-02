@@ -1,3 +1,4 @@
+import Packages.Mutations;
 import Packages.Package;
 
 import java.io.BufferedWriter;
@@ -12,7 +13,6 @@ public class Annealing {
     public static double startTemperature = 10_000;
     public static double coolingRate = 0.999;
     public static double endTemperature = 1;
-    public static int mutationType = 1;
     public static int numUnchangedIterations = 1000;
     public static int numIterations;
     public static String statsFile = "stats.csv";
@@ -28,7 +28,7 @@ public class Annealing {
                 System.out.println("Cooling rate: " + coolingRate);
                 System.out.println("End temperature: " + endTemperature);
                 System.out.println("Number of unchanged iterations: " + numUnchangedIterations);
-                System.out.println("Mutation type: " + mutationType + "\n");
+                System.out.println("Mutation type: " + Mutations.mutationType + "\n");
 
                 System.out.println("1. Change start temperature");
                 System.out.println("2. Change end temperature");
@@ -87,8 +87,8 @@ public class Annealing {
                     case 5:
                         while (true) {
                             System.out.println("Mutation type 1 or 2: ");
-                            mutationType = scanner.nextInt();
-                            if (mutationType != 1 && mutationType != 2) {
+                            Mutations.mutationType = scanner.nextInt();
+                            if (Mutations.mutationType != 1 && Mutations.mutationType != 2) {
                                 System.out.println("The mutation type must be 1 or 2");
                                 continue;
                             }
@@ -106,31 +106,6 @@ public class Annealing {
                 System.out.println("Invalid input");
             } catch (IOException e) {
                 System.out.println("An error occurred while writing the file");
-            }
-        }
-    }
-
-    public static void mutate(Package[] newPath) {
-        if (mutationType == 1) {
-            int randomIndex1 = (int) (Math.random() * (newPath.length - 1));
-            int randomIndex2 = (int) (Math.random() * (newPath.length - 1));
-
-            Package temp = newPath[randomIndex1];
-            newPath[randomIndex1] = newPath[randomIndex2];
-            newPath[randomIndex2] = temp;
-        } else {
-            //probabilities:
-            // mutation1 89
-            // mutation2 10
-            // mutation3 1
-
-            int random = (int) (Math.random() * 100);
-            if (random < 89) {
-                Mutations.mutation1(newPath);
-            } else if (random < 99) {
-                Mutations.mutation2(newPath);
-            } else {
-                Mutations.mutation3(newPath);
             }
         }
     }
@@ -156,7 +131,7 @@ public class Annealing {
 
         while (lastMutation < numUnchangedIterations) {
             Package[] newPath = currentPath.clone();
-            mutate(newPath);
+            Mutations.mutate(newPath);
 
             double newCost = Package.getCost(newPath);
             double delta = newCost - currentCost;
@@ -185,7 +160,6 @@ public class Annealing {
         }
 
         numIterations = iter;
-
 
         pathWriter.write(String.join(",", Arrays.stream(currentPath).map(Object::toString).toArray(String[
                 ]::new)));

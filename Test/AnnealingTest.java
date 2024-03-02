@@ -1,3 +1,4 @@
+import Packages.Mutations;
 import Packages.Package;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -71,7 +72,7 @@ public class AnnealingTest {
 
     @Test
     public void SolveTest() throws IOException {
-        Annealing.mutationType = 2;
+        Mutations.mutationType = 2;
 
         Package[] newPackages = Annealing.solve(packages);
 

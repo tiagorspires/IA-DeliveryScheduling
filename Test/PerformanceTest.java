@@ -1,3 +1,4 @@
+import Packages.Mutations;
 import Packages.Package;
 import org.junit.jupiter.api.Test;
 import java.util.concurrent.Callable;
@@ -35,7 +36,7 @@ public class PerformanceTest {
         Test(() -> HillClimbing.solve(packages), "Hill Climbing with mutation 2");
 
         Test(() -> Annealing.solve(packages), "Simulated Annealing");
-        Annealing.mutationType = 2;
+        Mutations.mutationType = 2;
         Test(() -> Annealing.solve(packages), "Simulated Annealing with mutation 2");
     }
 }
