@@ -3,72 +3,72 @@ import Packages.Package;
 import java.util.*;
 
 public class Genetic {
-        private static final Random random = new Random();
-        public static int populationSize = 100;
-        public static int numGenerations = 1_000;
-        public static double mutationProb = 0.2;
-        public static int childrenSize = 100;
-        public static String statsFile = "stats.csv";
-        public static String pathFile = "path.csv";
+    private static final Random random = new Random();
+    public static int populationSize = 100;
+    public static int numGenerations = 1_000;
+    public static double mutationProb = 0.2;
+    public static int childrenSize = 100;
+    public static String statsFile = "stats.csv";
+    public static String pathFile = "path.csv";
 
-        public static void solveWithGeneticMenu(Scanner scanner) {
-            int option = 0;
-            while (option != 6) {
-                try {
-                    System.out.println("Solve with genetic algorithm\n");
-                    System.out.println("Current configuration:");
-                    System.out.println("Population size: " + populationSize);
-                    System.out.println("Number of generations: " + numGenerations);
-                    System.out.println("Mutation Probability: " + mutationProb + "\n");
+    public static void solveWithGeneticMenu(Scanner scanner) {
+        int option = 0;
+        while (option != 6) {
+            try {
+                System.out.println("Solve with genetic algorithm\n");
+                System.out.println("Current configuration:");
+                System.out.println("Population size: " + populationSize);
+                System.out.println("Number of generations: " + numGenerations);
+                System.out.println("Mutation Probability: " + mutationProb + "\n");
 
-                    System.out.println("1. Change population size");
-                    System.out.println("2. Change number of generations");
-                    System.out.println("3. Change number of generation population");
-                    System.out.println("4. Change mutation Probability [0-1]"); // Not sure if this option is to be implemented
-                    System.out.println("5. Solve");
-                    System.out.println("6. Back");
-                    option = scanner.nextInt();
+                System.out.println("1. Change population size");
+                System.out.println("2. Change number of generations");
+                System.out.println("3. Change number of generation population");
+                System.out.println("4. Change mutation Probability [0-1]"); // Not sure if this option is to be implemented
+                System.out.println("5. Solve");
+                System.out.println("6. Back");
+                option = scanner.nextInt();
 
-                    switch (option) {
-                        case 1:
-                            while (true) {
-                                System.out.println("Population size: ");
-                                populationSize = scanner.nextInt();
-                                if (populationSize <= 0) {
-                                    System.out.println("The population size must be greater than 0");
-                                    continue;
-                                }
-                                break;
+                switch (option) {
+                    case 1:
+                        while (true) {
+                            System.out.println("Population size: ");
+                            populationSize = scanner.nextInt();
+                            if (populationSize <= 0) {
+                                System.out.println("The population size must be greater than 0");
+                                continue;
                             }
                             break;
-                        case 2:
-                            while (true) {
-                                System.out.println("Number of generations: ");
-                                numGenerations = scanner.nextInt();
-                                if (numGenerations <= 0) {
-                                    System.out.println("The number of generations must be greater than 0");
-                                    continue;
-                                }
-                                break;
+                        }
+                        break;
+                    case 2:
+                        while (true) {
+                            System.out.println("Number of generations: ");
+                            numGenerations = scanner.nextInt();
+                            if (numGenerations <= 0) {
+                                System.out.println("The number of generations must be greater than 0");
+                                continue;
                             }
                             break;
-                        case 3:
-                        case 4:
+                        }
+                        break;
+                    case 3:
+                    case 4:
 
-                            break;
-                        case 5:
-                            long startTime = System.currentTimeMillis();
-                            solve(Main.packages);
-                            long endTime = System.currentTimeMillis();
-                            System.out.println("Execution time: " + (endTime - startTime) + "ms");
-                            break;
-                    }
-                } catch (InputMismatchException e) {
-                    System.out.println("Invalid option");
-                    scanner.next();
+                        break;
+                    case 5:
+                        long startTime = System.currentTimeMillis();
+                        solve(Main.packages);
+                        long endTime = System.currentTimeMillis();
+                        System.out.println("Execution time: " + (endTime - startTime) + "ms");
+                        break;
                 }
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid option");
+                scanner.next();
             }
         }
+    }
 
     public static Package[] shuffle(Package[] packages) {
         List<Package> list = Arrays.asList(packages);
@@ -122,13 +122,11 @@ public class Genetic {
         int generation = 0;
         int genSinceImprovement = 0;
 
-
         population = Arrays.stream(population).map(p -> shuffle(packages.clone())).toArray(Package[][]::new);
         costs = Arrays.stream(population).map(Package::getAproxCost).mapToDouble(Double::doubleValue).toArray();
 
         while (genSinceImprovement < 100) {
 
-            //functional implementation
             Package[][] finalPopulation = population;
             Package[][] tempA = Arrays.stream(new Package[childrenSize])
                     .map(p -> randomMutate(crossover(finalPopulation[random.nextInt(populationSize)], finalPopulation[random.nextInt(populationSize)])))
