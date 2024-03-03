@@ -6,53 +6,47 @@ import java.io.IOException;
 import java.util.*;
 
 public class TabuSearch {
-    public static int mutationType = 1;
+    public static int mutationType = 2;
     public static int numUnchangedIterations = 10000;
     public static String statsFile = "stats.csv";
     public static String pathFile = "path.csv";
-
     private static int tenure = 250000;
-
-    private static final Queue<m> tabuList = new LinkedList<>();
-
+    private static final Queue<Mutation> tabuList = new LinkedList<>();
     private static int randomIndex1 = 0;
-
     private static int randomIndex2 = 0;
 
-    private enum Mutation {
+    private static MutationType mutation;
+
+    private enum MutationType {
         MUTATION1, MUTATION2, MUTATION3, MUTATION, NONE
     }
 
+    private static class Mutation {
+        private final MutationType mutation;
+        private final int index1;
+        private final int index2;
 
-
-    private static class m {
-        private Mutation mutation;
-        private int index1;
-        private int index2;
-
-        public m(Mutation mutation, int index1, int index2) {
+        public Mutation(MutationType mutation, int index1, int index2) {
             this.mutation = mutation;
             this.index1 = index1;
             this.index2 = index2;
         }
 
-        public m(){
-            this.mutation = Mutation.NONE;
+        public Mutation(){
+            this.mutation = MutationType.NONE;
+            this.index1 = 0;
+            this.index2 = 0;
         }
 
         public boolean equals(Object o) {
-            if (o == this) {
+            if (o == this)
                 return true;
-            }
-            if (!(o instanceof m m)) {
+            if (!(o instanceof Mutation m))
                 return false;
-            }
 
             return m.mutation == mutation && m.index1 == index1 && m.index2 == index2;
         }
     }
-
-
 
     public static void solveWithTabuSearchMenu(Scanner scanner) {
         int option = 0;
@@ -157,18 +151,30 @@ public class TabuSearch {
 
 
     public static void mutate(Package[] newPath) {
-        //probabilities:
-        // mutation1 89
-        // mutation2 10
-        // mutation3 1
+        if (mutationType == 1) {
+            mutation = MutationType.MUTATION;
+            randomIndex1 = (int) (Math.random() * (newPath.length - 1));
+            randomIndex2 = (int) (Math.random() * (newPath.length - 1));
 
-        int random = (int) (Math.random() * 100);
-        if (random < 89) {
-            mutation1(newPath);
-        } else if (random < 99) {
-            mutation2(newPath);
+            Package temp = newPath[randomIndex1];
+            newPath[randomIndex1] = newPath[randomIndex2];
+            newPath[randomIndex2] = temp;
         } else {
-            mutation3(newPath);
+            //probabilities:
+            // mutation1 89
+            // mutation2 10
+            // mutation3 1
+            int random = (int) (Math.random() * 100);
+            if (random < 89) {
+                mutation = MutationType.MUTATION1;
+                mutation1(newPath);
+            } else if (random < 99) {
+                mutation = MutationType.MUTATION2;
+                mutation2(newPath);
+            } else {
+                mutation = MutationType.MUTATION3;
+                mutation3(newPath);
+            }
         }
     }
 
@@ -188,35 +194,26 @@ public class TabuSearch {
         int maxLastMutation = 0;
         int lastMutation = 0;
 
-
         while (lastMutation < numUnchangedIterations) {
             Package[] newPath = currentPath.clone();
 
-            if (mutationType == 1) {
-                randomIndex1 = (int) (Math.random() * (packages.length - 1));
-                randomIndex2 = (int) (Math.random() * (packages.length - 1));
-
-                Package temp = newPath[randomIndex1];
-                newPath[randomIndex1] = newPath[randomIndex2];
-                newPath[randomIndex2] = temp;
-            } else {
-                mutate(newPath);
-            }
+            mutate(newPath);
 
             double newCost = Package.getCost(newPath);
 
+            iter++;
             lastMutation++;
             if (newCost - currentCost < 0 ) {
-                m mutation = new m(Mutation.MUTATION1, randomIndex1, randomIndex2);
+                Mutation m = new Mutation(mutation, randomIndex1, randomIndex2);
 
-                if (tabuList.contains(mutation)){
-                    System.out.println("Tabu mutation");
-                    iter++;
-                    tabuList.add(new m());
+                if (tabuList.contains(m)){
+                    lastMutation++;
+                    tabuList.add(new Mutation());
                     continue;
                 }
 
-                tabuList.add(mutation);
+                tabuList.add(m);
+
                 if (tabuList.size() > tenure)
                     tabuList.remove();
 
@@ -225,27 +222,16 @@ public class TabuSearch {
                 lastMutation = 0;
             }
 
-            if (lastMutation > maxLastMutation) {
-                maxLastMutation = lastMutation;
-            }
+            maxLastMutation = Math.max(lastMutation, maxLastMutation);
 
             if (newCost < bestCost) {
                 bestCost = newCost;
                 bestPath = newPath.clone();
             }
 
-            if (iter % 1_000_000 == 0) {
-                System.out.println("Iteration: " + iter + " Best cost: " + bestCost + " Current cost: " + currentCost + " Max unchanged iterations: " + maxLastMutation);
-            }
-
-            statsWriter.write(String.join(",", Integer.toString(iter), Double.toString(bestCost), Double.toString(currentCost)));
-            statsWriter.newLine();
-
-            iter++;
         }
 
-
-        System.out.println("Best cost: " + bestCost + " Current cost: " + currentCost + " Max unchanged iterations: " + maxLastMutation);
+        System.out.println("Best cost: " + Package.getCost(bestPath) + " Current cost: " + currentCost + " Max unchanged iterations: " + maxLastMutation);
 
         pathWriter.write(String.join(",", Arrays.stream(currentPath).map(Object::toString).toArray(String[]::new)));
         pathWriter.newLine();

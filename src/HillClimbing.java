@@ -66,69 +66,33 @@ public class HillClimbing {
             }
         }
     }
-    public static void mutate(Package[] newPath) {
-        //probabilities:
-        // mutation1 89
-        // mutation2 10
-        // mutation3 1
-
-        int random = (int) (Math.random() * 100);
-        if (random < 89) {
-            Mutations.mutation1(newPath);
-        } else if (random < 99) {
-            Mutations.mutation2(newPath);
-        } else {
-            Mutations.mutation3(newPath);
-        }
-    }
 
     public static Package[] solve(Package[] packages) throws IOException {
-        BufferedWriter statsWriter;
-        BufferedWriter pathWriter;
-
-        statsWriter = new BufferedWriter(new FileWriter(statsFile));
-        pathWriter = new BufferedWriter(new FileWriter(pathFile));
-
-        double bestCost = Package.getCost(packages);
-        Package[] bestPath = packages.clone();
-
-        Package[] currentPath = packages;
-        double currentCost = bestCost;
-
-        int iter = 0;
-
+        BufferedWriter statsWriter = new BufferedWriter(new FileWriter(statsFile));
+        BufferedWriter pathWriter = new BufferedWriter(new FileWriter(pathFile));
         statsWriter.write(String.join(",", "Iteration", "Best Cost", "Current Cost","Temperature"));
         statsWriter.newLine();
 
+        Package[] bestPath = packages.clone();
+        Package[] currentPath = packages;
+        double bestCost = Package.getCost(packages);
+        double currentCost = bestCost;
+
+        int iter = 0;
         int maxLastMutation = 0;
         int lastMutation = 0;
 
         while (lastMutation < numUnchangedIterations) {
+
             Package[] newPath = currentPath.clone();
-
-            if (mutationType == 1) {
-                int randomIndex1 = (int) (Math.random() * (packages.length - 1));
-                int randomIndex2 = (int) (Math.random() * (packages.length - 1));
-
-                Package temp = newPath[randomIndex1];
-                newPath[randomIndex1] = newPath[randomIndex2];
-                newPath[randomIndex2] = temp;
-            } else {
-                mutate(newPath);
-            }
+            Mutations.mutate(newPath);
 
             double newCost = Package.getCost(newPath);
-            double delta = newCost - currentCost;
-
             lastMutation++;
-            if (delta < 0 ) {
+            if (newCost - currentCost < 0 ) {
                 currentPath = newPath;
                 currentCost = newCost;
                 lastMutation = 0;
-            }
-
-            if (lastMutation > maxLastMutation) {
-                maxLastMutation = lastMutation;
             }
 
             if (newCost < bestCost) {
@@ -136,10 +100,7 @@ public class HillClimbing {
                 bestPath = newPath.clone();
             }
 
-            if (iter % 1_000_000 == 0) {
-                System.out.println("Iteration: " + iter + " Best cost: " + bestCost + " Current cost: " + currentCost + " Max unchanged iterations: " + maxLastMutation);
-            }
-
+            maxLastMutation = Math.max(lastMutation, maxLastMutation);
             iter++;
         }
 

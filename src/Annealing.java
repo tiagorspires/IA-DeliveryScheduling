@@ -113,6 +113,8 @@ public class Annealing {
     public static Package[] solve(Package[] packages) throws IOException {
         BufferedWriter statsWriter = new BufferedWriter(new FileWriter(statsFile));
         BufferedWriter pathWriter = new BufferedWriter(new FileWriter(pathFile));
+        statsWriter.write(String.join(",", "Iteration", "Best Cost", "Current Cost","Temperature"));
+        statsWriter.newLine();
 
         double temperature = startTemperature;
         double bestCost = Package.getCost(packages);
@@ -120,11 +122,6 @@ public class Annealing {
 
         Package[] bestPath = packages.clone();
         Package[] currentPath = packages;
-
-        int iter = 0;
-
-        statsWriter.write(String.join(",", "Iteration", "Best Cost", "Current Cost","Temperature"));
-        statsWriter.newLine();
 
         int maxLastMutation = 0;
         int lastMutation = 0;
@@ -137,32 +134,24 @@ public class Annealing {
             double delta = newCost - currentCost;
 
             lastMutation++;
+            maxLastMutation = Math.max(lastMutation, maxLastMutation);
+            temperature *= 1 * coolingRate;
+            numIterations++;
+
             if (delta < 0 || Math.exp(-delta / temperature) > Math.random()) {
                 currentPath = newPath;
                 currentCost = newCost;
                 lastMutation = 0;
             }
 
-            maxLastMutation = Math.max(lastMutation, maxLastMutation);
-            temperature *= 1 * coolingRate;
-            iter++;
-
             if (currentCost < bestCost) {
                 bestPath = currentPath;
                 bestCost = currentCost;
             }
 
-            if (iter % 1_000_000 == 0) {
-                System.out.println("Iteration: " + iter + " Best cost: " + bestCost + " Current cost: " + currentCost + " Temperature: " + temperature
-                        + " Max last mutation: " + maxLastMutation);
-            }
-
         }
 
-        numIterations = iter;
-
-        pathWriter.write(String.join(",", Arrays.stream(currentPath).map(Object::toString).toArray(String[
-                ]::new)));
+        pathWriter.write(String.join(",", Arrays.stream(currentPath).map(Object::toString).toArray(String[]::new)));
         pathWriter.newLine();
 
         statsWriter.close();

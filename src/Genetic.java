@@ -3,7 +3,7 @@ import Packages.Package;
 import java.util.*;
 
 public class Genetic {
-    private static final Random random = new Random();
+    private static final SplittableRandom random = new SplittableRandom();
     public static int populationSize = 100;
     public static int numGenerations = 1_000;
     public static double mutationProb = 0.2;
@@ -117,7 +117,7 @@ public class Genetic {
         Package[][] population = new Package[populationSize + childrenSize][packages.length]; // population of paths
         Package[] bestPath = new Package[packages.length];
         double[] costs;
-        double bestCost = Integer.MAX_VALUE;
+        double bestCost = Package.getAproxCost(packages);
 
         int generation = 0;
         int genSinceImprovement = 0;
@@ -128,11 +128,12 @@ public class Genetic {
         while (genSinceImprovement < 100) {
 
             Package[][] finalPopulation = population;
+
             Package[][] tempA = Arrays.stream(new Package[childrenSize])
                     .map(p -> randomMutate(crossover(finalPopulation[random.nextInt(populationSize)], finalPopulation[random.nextInt(populationSize)])))
                     .toArray(Package[][]::new);
-
             System.arraycopy(tempA, 0, population, populationSize, childrenSize);
+
             double[] tempC = Arrays.stream(tempA).map(Package::getAproxCost).mapToDouble(Double::doubleValue).toArray();
             System.arraycopy(tempC, 0, costs, populationSize, childrenSize);
 
