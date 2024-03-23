@@ -101,6 +101,25 @@ public class Genetic {
         return child;
     }
 
+    public static Package[] crossover1(Package[] parent1, Package[] parent2) {
+        Package[] child = parent1.clone();
+        int index = random.nextInt(parent1.length - 2);
+
+        for (int i = 0;i < index; i++) {
+            int index2 = findIndex(parent1, parent2[i]);
+            Package temp = child[i];
+            child[index2] = parent2[i];
+            child[i] = temp;
+        }
+
+        return child;
+    }
+
+    private static <T> int findIndex(T[] array, T target) {
+        return List.of(array).indexOf(target);
+
+    }
+
     private static Package[] randomMutate(Package[] packages) {
         if (random.nextInt(100) < 20 ) {
             int randomIndex1 = random.nextInt(packages.length);
@@ -111,6 +130,55 @@ public class Genetic {
             packages[randomIndex2] = temp;
         }
         return packages;
+    }
+
+    public static Package[][] rouletteSelect(Package[][] population, double[] costs, int populationSize) {
+
+        double[] fitness = new double[populationSize];
+        double totalFitness = 0;
+        for (int i = 0; i < populationSize; i++) {
+            fitness[i] = 1 / costs[i];
+            totalFitness += fitness[i];
+        }
+
+        double[] probabilities = new double[populationSize];
+        for (int i = 0; i < populationSize; i++) {
+            probabilities[i] = fitness[i] / totalFitness;
+        }
+
+        Package[][] selected = new Package[populationSize][population[0].length];
+        for (int i = 0; i < populationSize; i++) {
+            double randomValue = random.nextDouble();
+            double sum = 0;
+            for (int j = 0; j < populationSize; j++) {
+                sum += probabilities[j];
+                if (randomValue <= sum) {
+                    selected[i] = population[j];
+                    break;
+                }
+            }
+        }
+
+        return selected;
+
+    }
+
+    public static Package[][] tournamentSelect(Package[][] population, double[] costs, int populationSize) {
+        Package[][] selected = new Package[populationSize][population[0].length];
+        selected = Arrays.stream(selected).map(p -> {
+            int randomIndex1 = random.nextInt(population.length);
+            int randomIndex2 = random.nextInt(population.length);
+            Package[] a;
+            if (costs[randomIndex1] < costs[randomIndex2]) {
+                a = population[randomIndex1];
+            } else {
+                a = population[randomIndex2];
+            }
+
+            return a;
+        }).toArray(Package[][]::new);
+
+        return selected;
     }
 
     public static void solve(Package[] packages) {
