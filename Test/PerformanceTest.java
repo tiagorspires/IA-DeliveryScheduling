@@ -1,7 +1,10 @@
 import Packages.Mutations;
 import Packages.Package;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
 import java.util.concurrent.Callable;
+import java.util.stream.IntStream;
 
 public class PerformanceTest {
     private static final Package[] packages = Main.generatePackages(500, 100, 100);
@@ -39,4 +42,37 @@ public class PerformanceTest {
         Mutations.mutationType = 2;
         Test(() -> Annealing.solve(packages), "Simulated Annealing with mutation 2");
     }
+
+    @Test
+    public void execute50times() throws IOException {
+        int[] packageNum = {100,500,1000};
+        int[] tenure = {10000,10_0000,250_000};
+
+        TabuSearch.mutationType = 2;
+        for (int populationSize : packageNum) {
+            for (int t : tenure) {
+
+                TabuSearch.tenure = t;
+                long startTime = System.currentTimeMillis();
+
+                TabuSearch.solve(Main.generatePackages(populationSize, 100, 100));
+
+                System.out.println("Execution time: " + (System.currentTimeMillis() - startTime) + "ms" + " for population size: " + populationSize + " and tenure: " + t);
+                System.out.println("------------------------------------------------------------");
+            }
+        }
+    }
+
+    @Test
+    public void TestGenetic() {
+        long time = System.currentTimeMillis();
+
+        double sum = IntStream.range(0, 50)
+                .parallel()
+                .mapToDouble(i -> Package.getCost(Greedy.greedy1(Main.generatePackages(1000,100,100)).toArray(Package[]::new)))
+                .sum();
+        System.out.println("Average cost: " + sum / 50 + " total time: " + (System.currentTimeMillis() - time) + "ms\n");
+        System.out.println("------------------------------------------------------------");
+    }
+
 }

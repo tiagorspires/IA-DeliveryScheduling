@@ -20,7 +20,7 @@ public class Greedy {
         int option = scanner.nextInt();
         switch (option) {
             case 1:
-                greedy1();
+                greedy1(Main.packages);
                 break;
             case 2:
                 greedy2();
@@ -33,10 +33,10 @@ public class Greedy {
     public static int distance(Package p, int x, int y) {
         return (int) Math.sqrt(Math.pow(p.getX() - x, 2) + Math.pow(p.getY() - y, 2));
     }
-    public static LinkedList<Package> greedy1() {
+    public static LinkedList<Package> greedy1(Package[] pack) {
         LinkedList<Package> solution = new LinkedList<>();
         LinkedList<Package> packages = new LinkedList<>();
-        Collections.addAll(packages, Main.packages);
+        Collections.addAll(packages, pack);
         ArrayList<UrgentPackage> urgentPackages = new ArrayList<>();
         ArrayList<FragilePackage> fragilePackages = new ArrayList<>();
         ArrayList<Package> normalPackages = new ArrayList<>();

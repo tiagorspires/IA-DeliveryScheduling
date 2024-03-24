@@ -1,10 +1,6 @@
 import Packages.Mutations;
 import Packages.Package;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -104,17 +100,11 @@ public class Annealing {
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Invalid input");
-            } catch (IOException e) {
-                System.out.println("An error occurred while writing the file");
             }
         }
     }
 
-    public static Package[] solve(Package[] packages) throws IOException {
-        BufferedWriter statsWriter = new BufferedWriter(new FileWriter(statsFile));
-        BufferedWriter pathWriter = new BufferedWriter(new FileWriter(pathFile));
-        statsWriter.write(String.join(",", "Iteration", "Best Cost", "Current Cost","Temperature"));
-        statsWriter.newLine();
+    public static Package[] solve(Package[] packages) {
 
         double temperature = startTemperature;
         double bestCost = Package.getCost(packages);
@@ -150,12 +140,6 @@ public class Annealing {
             }
 
         }
-
-        pathWriter.write(String.join(",", Arrays.stream(currentPath).map(Object::toString).toArray(String[]::new)));
-        pathWriter.newLine();
-
-        statsWriter.close();
-        pathWriter.close();
 
         return bestPath;
     }

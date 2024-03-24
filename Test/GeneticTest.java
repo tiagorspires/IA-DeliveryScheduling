@@ -47,10 +47,11 @@ public class GeneticTest {
     @Test
     public void TestSolve() {
 
-        Genetic.mutationProb = 0.2;
-        Genetic.numGenerations = 10_000;
+        Genetic.mutationProb = 0.9;
+        Genetic.numGenerations = 1000;
         double time = System.currentTimeMillis();
-        Genetic.solve(Main.generatePackages(500, 100, 100));
+        Package[] a = Genetic.solve(Main.generatePackages(500, 100, 100));
+        System.out.println("Cost: " + Package.getCost(a));
         System.out.println("Execution time: " + (System.currentTimeMillis() - time) + "ms");
     }
 }

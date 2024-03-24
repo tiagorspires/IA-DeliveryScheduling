@@ -4,15 +4,12 @@ import java.util.Arrays;
 
 public class Mutations {
 
-    public static int randomIndex1;
-    public static int randomIndex2;
-
     public static int mutationType = 1;
 
     public static void mutation1(Package[] newPath) {
-        randomIndex1 = (int) (Math.random() * (newPath.length - 1));
+        int randomIndex1 = (int) (Math.random() * (newPath.length - 1));
         //index1 should be less than index2
-        randomIndex2 = (int) (Math.random() * (newPath.length - randomIndex1 - 1) + randomIndex1 + 1);
+        int randomIndex2 = (int) (Math.random() * (newPath.length - randomIndex1 - 1) + randomIndex1 + 1);
 
         //move the elements between index1 and index2 one position to the right
         Package temp = newPath[randomIndex2];
@@ -22,8 +19,8 @@ public class Mutations {
     }
 
     public static void mutation2(Package[] newPath) {
-        randomIndex1 = (int) (Math.random() * (newPath.length - 2));
-        randomIndex2 = (int) (Math.random() * ((newPath.length - randomIndex1) / 2));
+        int randomIndex1 = (int) (Math.random() * (newPath.length - 2));
+        int randomIndex2 = (int) (Math.random() * ((newPath.length - randomIndex1) / 2));
 
         Package[] temp = Arrays.copyOfRange(newPath, randomIndex1, randomIndex1 + randomIndex2);
 
@@ -32,8 +29,8 @@ public class Mutations {
     }
 
     public static void mutation3(Package[] newPath) {
-        randomIndex1 = (int) (Math.random() * (newPath.length));
-        randomIndex2 = (int) (Math.random() * (newPath.length - randomIndex1 - 1) + randomIndex1 + 1);
+        int randomIndex1 = (int) (Math.random() * (newPath.length));
+        int randomIndex2 = (int) (Math.random() * (newPath.length - randomIndex1 - 1) + randomIndex1 + 1);
 
         //reverse the elements between index1 and index2
         for (int i = 0; i < (randomIndex2 - randomIndex1) / 2; i++) {
@@ -45,8 +42,8 @@ public class Mutations {
 
     public static void mutate(Package[] newPath) {
         if (mutationType == 1) {
-            randomIndex1 = (int) (Math.random() * (newPath.length - 1));
-            randomIndex2 = (int) (Math.random() * (newPath.length - 1));
+            int randomIndex1 = (int) (Math.random() * (newPath.length - 1));
+            int randomIndex2 = (int) (Math.random() * (newPath.length - 1));
 
             Package temp = newPath[randomIndex1];
             newPath[randomIndex1] = newPath[randomIndex2];

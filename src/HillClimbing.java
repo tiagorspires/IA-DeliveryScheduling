@@ -1,10 +1,6 @@
 import Packages.Mutations;
 import Packages.Package;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -61,24 +57,17 @@ public class HillClimbing {
                 }
             }catch (InputMismatchException e) {
                 System.out.println("Invalid input");
-            }catch (IOException e) {
-                System.out.println("An error occurred while writing the file");
             }
         }
     }
 
-    public static Package[] solve(Package[] packages) throws IOException {
-        BufferedWriter statsWriter = new BufferedWriter(new FileWriter(statsFile));
-        BufferedWriter pathWriter = new BufferedWriter(new FileWriter(pathFile));
-        statsWriter.write(String.join(",", "Iteration", "Best Cost", "Current Cost","Temperature"));
-        statsWriter.newLine();
-
+    public static Package[] solve(Package[] packages) {
         Package[] bestPath = packages.clone();
         Package[] currentPath = packages;
+
         double bestCost = Package.getCost(packages);
         double currentCost = bestCost;
 
-        int iter = 0;
         int maxLastMutation = 0;
         int lastMutation = 0;
 
@@ -101,14 +90,7 @@ public class HillClimbing {
             }
 
             maxLastMutation = Math.max(lastMutation, maxLastMutation);
-            iter++;
         }
-
-        pathWriter.write(String.join(",", Arrays.stream(currentPath).map(Object::toString).toArray(String[]::new)));
-        pathWriter.newLine();
-
-        statsWriter.close();
-        pathWriter.close();
 
         return bestPath;
     }

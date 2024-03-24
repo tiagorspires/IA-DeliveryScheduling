@@ -1,6 +1,7 @@
 import Packages.Package;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class Genetic {
     private static final SplittableRandom random = new SplittableRandom();
@@ -132,109 +133,143 @@ public class Genetic {
         return packages;
     }
 
-    public static Package[][] rouletteSelect(Package[][] population, double[] costs, int populationSize) {
+    private static int rouletteSelect(Package[][] population, double[] costs) {
+        //calculate the sum of the costs
+        double max = Arrays.stream(costs).max().getAsDouble();
+        double sum = Arrays.stream(costs).map( c -> max - c).sum();
 
-        double[] fitness = new double[populationSize];
-        double totalFitness = 0;
-        for (int i = 0; i < populationSize; i++) {
-            fitness[i] = 1 / costs[i];
-            totalFitness += fitness[i];
+        //calculate the probability of each path
+        double[] probabilities = Arrays.stream(costs).map(c -> (max - c) / sum).toArray();
+
+        //calculate the cumulative probability
+        for (int i = 1; i < probabilities.length; i++) {
+            probabilities[i] += probabilities[i - 1];
         }
 
-        double[] probabilities = new double[populationSize];
-        for (int i = 0; i < populationSize; i++) {
-            probabilities[i] = fitness[i] / totalFitness;
-        }
-
-        Package[][] selected = new Package[populationSize][population[0].length];
-        for (int i = 0; i < populationSize; i++) {
-            double randomValue = random.nextDouble();
-            double sum = 0;
-            for (int j = 0; j < populationSize; j++) {
-                sum += probabilities[j];
-                if (randomValue <= sum) {
-                    selected[i] = population[j];
-                    break;
+        //select the population
+        Package[][] newPopulation = new Package[populationSize][];
+        double[] newCosts = new double[populationSize];
+        IntStream
+            .range(0, populationSize)
+            .parallel()
+            .forEach(i -> {
+                double randomValue = random.nextDouble();
+                // with binary search
+                for (int j = 0; j < probabilities.length; j++) {
+                    if (randomValue <= probabilities[j]) {
+                        newPopulation[i] = population[j];
+                        newCosts[i] = costs[j];
+                        break;
+                    }
                 }
+            });
+
+        System.arraycopy(newPopulation, 0, population, 0, populationSize);
+        System.arraycopy(newCosts, 0, costs, 0, populationSize);
+
+        //return the index of the best cost
+        int index = 0;
+        double min = newCosts[0];
+        for (int i = 1; i < newCosts.length; i++) {
+            if (newCosts[i] < min) {
+                min = newCosts[i];
+                index = i;
             }
         }
 
-        return selected;
-
+        return index;
     }
 
-    public static Package[][] tournamentSelect(Package[][] population, double[] costs, int populationSize) {
-        Package[][] selected = new Package[populationSize][population[0].length];
-        selected = Arrays.stream(selected).map(p -> {
-            int randomIndex1 = random.nextInt(population.length);
-            int randomIndex2 = random.nextInt(population.length);
-            Package[] a;
-            if (costs[randomIndex1] < costs[randomIndex2]) {
-                a = population[randomIndex1];
-            } else {
-                a = population[randomIndex2];
+    private static int tournamentSelect(Package[][] population, double[] costs) {
+        Package[][] newPopulation = new Package[populationSize][];
+        double[] newCosts = new double[populationSize];
+        IntStream
+            .range(0, populationSize)
+            .parallel()
+            .forEach(i -> {
+                int randomIndex1 = random.nextInt(population.length);
+                int randomIndex2 = random.nextInt(population.length);
+                if (costs[randomIndex1] < costs[randomIndex2]) {
+                    newPopulation[i] = population[randomIndex1];
+                    newCosts[i] = costs[randomIndex1];
+                } else {
+                    newPopulation[i] = population[randomIndex2];
+                    newCosts[i] = costs[randomIndex2];
+                }
+            });
+
+        System.arraycopy(newPopulation, 0, population, 0, populationSize);
+        System.arraycopy(newCosts, 0, costs, 0, populationSize);
+
+        //return the index of the best cost
+        int index = 0;
+        double min = newCosts[0];
+        for (int i = 1; i < newCosts.length; i++) {
+            if (newCosts[i] < min) {
+                min = newCosts[i];
+                index = i;
             }
+        }
 
-            return a;
-        }).toArray(Package[][]::new);
-
-        return selected;
+        return index;
     }
 
-    public static void solve(Package[] packages) {
+    private static int bestFitnessSelect(Package[][] population, double[] costs) {
+        //sort based on the costs array
+        Integer[] indexes = IntStream.range(0, costs.length).boxed().sorted(Comparator.comparingDouble(i -> costs[i])).toArray(Integer[]::new);
+
+        Package[][] newPopulation = new Package[populationSize][];
+        double[] newCosts = new double[populationSize];
+
+        for (int i = 0; i < populationSize; i++) {
+            newPopulation[i] = population[indexes[i]];
+            newCosts[i] = costs[indexes[i]];
+        }
+
+        System.arraycopy(newPopulation, 0, population, 0, populationSize);
+        System.arraycopy(newCosts, 0, costs, 0, populationSize);
+
+        return 0;
+    }
+
+    public static Package[] solve(Package[] packages) {
         Package[][] population = new Package[populationSize + childrenSize][packages.length]; // population of paths
-        Package[] bestPath = new Package[packages.length];
+        Package[] bestPath = packages.clone();
         double[] costs;
         double bestCost = Package.getAproxCost(packages);
 
-        int generation = 0;
         int genSinceImprovement = 0;
 
-        population = Arrays.stream(population).map(p -> shuffle(packages.clone())).toArray(Package[][]::new);
-        costs = Arrays.stream(population).map(Package::getAproxCost).mapToDouble(Double::doubleValue).toArray();
+        population = Arrays.stream(population).parallel().map(p -> shuffle(packages.clone())).toArray(Package[][]::new);
+        costs = Arrays.stream(population).parallel().map(Package::getAproxCost).mapToDouble(Double::doubleValue).toArray();
 
-        while (genSinceImprovement < 100) {
+        while (genSinceImprovement < numGenerations) {
 
             Package[][] finalPopulation = population;
 
             Package[][] tempA = Arrays.stream(new Package[childrenSize])
+                    .parallel()
                     .map(p -> randomMutate(crossover(finalPopulation[random.nextInt(populationSize)], finalPopulation[random.nextInt(populationSize)])))
                     .toArray(Package[][]::new);
             System.arraycopy(tempA, 0, population, populationSize, childrenSize);
 
-            double[] tempC = Arrays.stream(tempA).map(Package::getAproxCost).mapToDouble(Double::doubleValue).toArray();
+            double[] tempC = Arrays.stream(tempA).parallel().map(Package::getAproxCost).mapToDouble(Double::doubleValue).toArray();
             System.arraycopy(tempC, 0, costs, populationSize, childrenSize);
 
             //sort the first 100 population by cost
-            for (int i = 0; i < populationSize + childrenSize; i++) {
-                for (int j = i + 1; j < populationSize + childrenSize; j++) {
-                    if (costs[i] > costs[j]) {
-                        double temp = costs[i];
-                        costs[i] = costs[j];
-                        costs[j] = temp;
+            int index = tournamentSelect(population, costs);
 
-                        Package[] tempPath = population[i];
-                        population[i] = population[j];
-                        population[j] = tempPath;
-                    }
-                }
-            }
 
-            if (costs[0] < bestCost) {
-                bestPath = population[0];
-                bestCost = costs[0];
+            if (costs[index] < bestCost) {
+                bestPath = population[index];
+                bestCost = costs[index];
                 genSinceImprovement = 0;
             } else {
                 genSinceImprovement++;
             }
-
-            generation++;
         }
 
-        System.out.println("Generation: " + generation);
-        System.out.println("Best path: " + Arrays.toString(bestPath));
-        System.out.println("Best Cost: " + Package.getCost(bestPath));
-
+        return bestPath;
     }
 
 }
