@@ -1,11 +1,10 @@
 import Packages.Package;
 
-import java.io.IOException;
 import java.util.*;
 
 public class TabuSearch {
     public static int mutationType = 1;
-    public static int numUnchangedIterations = 10000;
+    public static int numUnchangedIterations = 1000;
     public static String statsFile = "stats.csv";
     public static String pathFile = "path.csv";
     public static int tenure = 250000;
@@ -162,15 +161,13 @@ public class TabuSearch {
                 }
             }catch (InputMismatchException e) {
                 System.out.println("Invalid input");
-            }catch (IOException e) {
-                System.out.println("An error occurred while writing the file");
             }
         }
     }
 
 
 
-    public static Package[] solve(Package[] packages) throws IOException {
+    public static Package[] solve(Package[] packages) {
 
         Queue<Mutation> tabuList = new LinkedList<>();
         Package[] bestPath = packages.clone();

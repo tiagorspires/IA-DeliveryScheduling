@@ -11,6 +11,8 @@ public class Annealing {
     public static double endTemperature = 1;
     public static int numUnchangedIterations = 1000;
     public static int numIterations;
+
+    public static int collingSchedule = 1;
     public static String statsFile = "stats.csv";
     public static String pathFile = "path.csv";
 
@@ -105,7 +107,6 @@ public class Annealing {
     }
 
     public static Package[] solve(Package[] packages) {
-
         double temperature = startTemperature;
         double bestCost = Package.getCost(packages);
         double currentCost = bestCost;
@@ -113,22 +114,24 @@ public class Annealing {
         Package[] bestPath = packages.clone();
         Package[] currentPath = packages;
 
-        int maxLastMutation = 0;
         int lastMutation = 0;
+        int iter = 1;
 
         while (lastMutation < numUnchangedIterations) {
             Package[] newPath = currentPath.clone();
             Mutations.mutate(newPath);
 
             double newCost = Package.getCost(newPath);
-            double delta = newCost - currentCost;
-
             lastMutation++;
-            maxLastMutation = Math.max(lastMutation, maxLastMutation);
-            temperature *= 1 * coolingRate;
-            numIterations++;
 
-            if (delta < 0 || Math.exp(-delta / temperature) > Math.random()) {
+            temperature = switch (collingSchedule) {
+                case 1 -> temperature * coolingRate;
+                case 2 -> startTemperature / (Math.log(iter + 1));
+                case 3 -> startTemperature * Math.exp(-coolingRate * iter);
+                default -> temperature * coolingRate;
+            };
+
+            if (newCost - currentCost < 0 || Math.exp(-newCost - currentCost / temperature) > Math.random()) {
                 currentPath = newPath;
                 currentCost = newCost;
                 lastMutation = 0;
@@ -138,7 +141,7 @@ public class Annealing {
                 bestPath = currentPath;
                 bestCost = currentCost;
             }
-
+            iter++;
         }
 
         return bestPath;
