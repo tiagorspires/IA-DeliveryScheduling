@@ -2,6 +2,11 @@ import Packages.FragilePackage;
 import Packages.Package;
 import Packages.UrgentPackage;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
@@ -10,8 +15,8 @@ public class Main {
     public static int height = 100;
     public static int urgentMaxDeliveryTime = 240;
     public static int urgentMinDeliveryTime = 100;
-    public static int fragileMaxBreakingCost = 3;
-    public static int fragileMinBreakingCost = 10;
+    public static int fragileMaxBreakingCost = 10;
+    public static int fragileMinBreakingCost = 3;
     public static double fragileMaxBreakingChance = 0.01;
     public static double fragileMinBreakingChance = 0.0001;
 
@@ -236,5 +241,66 @@ public class Main {
         }
 
         return packages;
+    }
+
+
+    public static void GenerateImage(Package [] packages) {
+        BufferedImage image = new BufferedImage(height * 10, width * 10, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = image.createGraphics();
+
+        //background
+        g2d.setColor(Color.WHITE);
+        g2d.fillRect(0, 0, height * 10, width * 10);
+
+        DrawPath(packages, g2d, Color.ORANGE);
+
+        DrawPackages(packages, g2d);
+
+        g2d.dispose();
+
+        try {
+            ImageIO.write(image, "png", new File("path.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void DrawPath(Package[] packages, Graphics2D g2d, Color color){
+        g2d.setColor(color);
+        for (int i = 0; i < packages.length - 1; i++) {
+            g2d.drawLine(packages[i].getX() * 10 + 5, packages[i].getY() * 10 + 5, packages[i + 1].getX() * 10 + 5, packages[i + 1].getY() * 10 + 5);
+            g2d.drawLine(packages[i].getX() * 10 + 4, packages[i].getY() * 10 + 4, packages[i + 1].getX() * 10 + 4, packages[i + 1].getY() * 10 + 4);
+            g2d.drawLine(packages[i].getX() * 10 + 6, packages[i].getY() * 10 + 6, packages[i + 1].getX() * 10 + 6, packages[i + 1].getY() * 10 + 6);
+            g2d.drawLine(packages[i].getX() * 10 + 4, packages[i].getY() * 10 + 6, packages[i + 1].getX() * 10 + 4, packages[i + 1].getY() * 10 + 6);
+            g2d.drawLine(packages[i].getX() * 10 + 6, packages[i].getY() * 10 + 4, packages[i + 1].getX() * 10 + 6, packages[i + 1].getY() * 10 + 4);
+            g2d.drawLine(packages[i].getX() * 10 + 5, packages[i].getY() * 10 + 4, packages[i + 1].getX() * 10 + 5, packages[i + 1].getY() * 10 + 4);
+            g2d.drawLine(packages[i].getX() * 10 + 5, packages[i].getY() * 10 + 6, packages[i + 1].getX() * 10 + 5, packages[i + 1].getY() * 10 + 6);
+            g2d.drawLine(packages[i].getX() * 10 + 4, packages[i].getY() * 10 + 5, packages[i + 1].getX() * 10 + 4, packages[i + 1].getY() * 10 + 5);
+            g2d.drawLine(packages[i].getX() * 10 + 6, packages[i].getY() * 10 + 5, packages[i + 1].getX() * 10 + 6, packages[i + 1].getY() * 10 + 5);
+        }
+    }
+
+    public static void DrawPackages(Package[] packages, Graphics2D g2d){
+        double totalKm = 0;
+        int previousX = packages[0].getX();
+        int previousY = packages[0].getY();
+        for (Package p : packages) {
+            totalKm += p.distance(previousX, previousY);
+            previousX = p.getX();
+            previousY = p.getY();
+            if (p instanceof UrgentPackage){
+                if (((UrgentPackage) p).getDeliveryTime() > totalKm)
+                    g2d.setColor(Color.GREEN);
+                else
+                    g2d.setColor(Color.RED);
+            }
+            else if (p instanceof FragilePackage){
+                g2d.setColor(Color.BLUE);
+            }
+            else{
+                g2d.setColor(Color.BLACK);
+            }
+            g2d.fillOval(p.getX() * 10, p.getY() * 10, 9, 9);
+        }
     }
 }

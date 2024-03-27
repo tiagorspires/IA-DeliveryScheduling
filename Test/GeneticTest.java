@@ -48,7 +48,7 @@ public class GeneticTest {
     public void TestSolve() {
 
         Genetic.mutationProb = 0.9;
-        Genetic.numGenerations = 1000;
+        Genetic.numUnchangedGenerations = 1000;
         double time = System.currentTimeMillis();
         Package[] a = Genetic.solve(Main.generatePackages(500, 100, 100));
         System.out.println("Cost: " + Package.getCost(a));

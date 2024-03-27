@@ -10,15 +10,13 @@ public class Annealing {
     public static double coolingRate = 0.999;
     public static double endTemperature = 1;
     public static int numUnchangedIterations = 1000;
-    public static int numIterations;
-
     public static int collingSchedule = 1;
     public static String statsFile = "stats.csv";
     public static String pathFile = "path.csv";
 
     public static void solveWithAnnealingMenu(Scanner scanner) {
         int option = 0;
-        while (option != 7) {
+        while (option != 8) {
             try {
                 System.out.println("Solve with simulated annealing\n");
                 System.out.println("Current configuration:");
@@ -33,8 +31,9 @@ public class Annealing {
                 System.out.println("3. Change cooling rate");
                 System.out.println("4. Change number of unchanged iterations");
                 System.out.println("5. Change mutation type");
-                System.out.println("6. Solve");
-                System.out.println("7. Back");
+                System.out.println("6. Change cooling schedule");
+                System.out.println("7. Solve");
+                System.out.println("8. Back");
                 option = scanner.nextInt();
 
                 switch (option) {
@@ -94,10 +93,41 @@ public class Annealing {
                         }
                         break;
                     case 6:
+                        while (true) {
+                            System.out.println("Cooling schedule 1, 2 or 3: ");
+                            System.out.println("1. Tk = T0 * coolingRate^k");
+                            System.out.println("2. Tk = T0 / ln(k + 1)");
+                            System.out.println("3. Tk = T0 * e^(-coolingRate * k)");
+                            collingSchedule = scanner.nextInt();
+
+                            if (collingSchedule == 1){
+                                startTemperature = 1_000;
+                                System.out.println("Updated cooling schedule to Tk = T0 * coolingRate^k");
+                                System.out.println("Updated start temperature to 1_000");
+                            }else if (collingSchedule == 2) {
+                                startTemperature = 5;
+                                System.out.println("Updated cooling schedule to Tk = T0 / ln(k + 1)");
+                                System.out.println("Updated start temperature to 1_000");
+                            }else if (collingSchedule == 3) {
+                                startTemperature = 50;
+                                System.out.println("Updated cooling schedule to Tk = T0 * e^(-coolingRate * k)");
+                                System.out.println("Updated start temperature to 1_000");
+                            }else {
+                                System.out.println("The cooling schedule must be 1, 2 or 3");
+                                continue;
+                            }
+                            break;
+                        }
+                    case 7:
                         long startTime = System.currentTimeMillis();
-                        solve(Main.packages);
+                        Package[] packages = solve(Main.packages.clone());
                         long endTime = System.currentTimeMillis();
+                        System.out.println("Improved cost from " + Package.getCost(Main.packages) + " to " + Package.getCost(packages));
                         System.out.println("Execution time: " + (endTime - startTime) + "ms");
+                        System.out.println("Do you want to save an image of the path? [y/n]");
+                        if (scanner.next().equals("y")) {
+                            Main.GenerateImage(packages);
+                        }
                         break;
                 }
             } catch (InputMismatchException e) {

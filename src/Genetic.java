@@ -6,28 +6,37 @@ import java.util.stream.IntStream;
 public class Genetic {
     private static final SplittableRandom random = new SplittableRandom();
     public static int populationSize = 100;
-    public static int numGenerations = 1_000;
+    public static int numUnchangedGenerations = 1_000;
     public static double mutationProb = 0.2;
     public static int childrenSize = 100;
+
+    public static int crossoverMethod = 1;
+
+    public static String selectionMethod = "bestFitness";
     public static String statsFile = "stats.csv";
     public static String pathFile = "path.csv";
 
     public static void solveWithGeneticMenu(Scanner scanner) {
         int option = 0;
-        while (option != 6) {
+        while (option != 8) {
             try {
                 System.out.println("Solve with genetic algorithm\n");
                 System.out.println("Current configuration:");
                 System.out.println("Population size: " + populationSize);
-                System.out.println("Number of generations: " + numGenerations);
+                System.out.println("Children size: " + childrenSize);
+                System.out.println("Number of unchanged generations: " + numUnchangedGenerations);
                 System.out.println("Mutation Probability: " + mutationProb + "\n");
+                System.out.println("Crossover method: " + crossoverMethod);
+                System.out.println("Selection method: " + selectionMethod + "\n");
 
                 System.out.println("1. Change population size");
-                System.out.println("2. Change number of generations");
-                System.out.println("3. Change number of generation population");
+                System.out.println("2. Change number of unchanged generations");
+                System.out.println("3. Change number of children");
                 System.out.println("4. Change mutation Probability [0-1]"); // Not sure if this option is to be implemented
-                System.out.println("5. Solve");
-                System.out.println("6. Back");
+                System.out.println("5. Change crossover method");
+                System.out.println("6. Change selection method");
+                System.out.println("7. Solve");
+                System.out.println("8. Back");
                 option = scanner.nextInt();
 
                 switch (option) {
@@ -45,8 +54,8 @@ public class Genetic {
                     case 2:
                         while (true) {
                             System.out.println("Number of generations: ");
-                            numGenerations = scanner.nextInt();
-                            if (numGenerations <= 0) {
+                            numUnchangedGenerations = scanner.nextInt();
+                            if (numUnchangedGenerations <= 0) {
                                 System.out.println("The number of generations must be greater than 0");
                                 continue;
                             }
@@ -54,14 +63,73 @@ public class Genetic {
                         }
                         break;
                     case 3:
+                        while (true) {
+                            System.out.println("Children size: ");
+                            childrenSize = scanner.nextInt();
+                            if (childrenSize <= 0) {
+                                System.out.println("The children size must be greater than 0");
+                                continue;
+                            }
+                            break;
+                        }
+                        break;
                     case 4:
-
+                        while (true) {
+                            System.out.println("Mutation Probability [0-1]: ");
+                            mutationProb = scanner.nextDouble();
+                            if (mutationProb < 0 || mutationProb > 1) {
+                                System.out.println("The mutation probability must be between 0 and 1");
+                                continue;
+                            }
+                            break;
+                        }
                         break;
                     case 5:
+                        while (true) {
+                            System.out.println("Crossover method 1 or 2: ");
+                            crossoverMethod = scanner.nextInt();
+                            if (crossoverMethod != 1 && crossoverMethod != 2) {
+                                System.out.println("The crossover method must be 1 or 2");
+                                continue;
+                            }
+                            break;
+                        }
+                        break;
+                    case 6:
+                        while (true) {
+                            System.out.println("Selection method:");
+                            System.out.println("1. Roulette");
+                            System.out.println("2. Tournament");
+                            System.out.println("3. Best Fitness");
+                            int selectionMethodOption = scanner.nextInt();
+                            if (!selectionMethod.equals("Roulette") && !selectionMethod.equals("Tournament") && !selectionMethod.equals("Best Fitness")) {
+                                System.out.println("Invalid selection method");
+                                continue;
+                            }
+                            switch (selectionMethodOption) {
+                                case 1:
+                                    selectionMethod = "Roulette";
+                                    break;
+                                case 2:
+                                    selectionMethod = "Tournament";
+                                    break;
+                                case 3:
+                                    selectionMethod = "Best Fitness";
+                                    break;
+                            }
+                            break;
+                        }
+                        break;
+                    case 7:
                         long startTime = System.currentTimeMillis();
-                        solve(Main.packages);
+                        Package[] packages = solve(Main.packages.clone());
                         long endTime = System.currentTimeMillis();
+                        System.out.println("Improved cost from " + Package.getCost(Main.packages) + " to " + Package.getCost(packages));
                         System.out.println("Execution time: " + (endTime - startTime) + "ms");
+                        System.out.println("Do you want to save an image of the path? [y/n]");
+                        if (scanner.next().equals("y")) {
+                            Main.GenerateImage(packages);
+                        }
                         break;
                 }
             } catch (InputMismatchException e) {
@@ -243,7 +311,7 @@ public class Genetic {
         population = Arrays.stream(population).parallel().map(p -> shuffle(packages.clone())).toArray(Package[][]::new);
         costs = Arrays.stream(population).parallel().map(Package::getAproxCost).mapToDouble(Double::doubleValue).toArray();
 
-        while (genSinceImprovement < numGenerations) {
+        while (genSinceImprovement < numUnchangedGenerations) {
 
             Package[][] finalPopulation = population;
 

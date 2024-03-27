@@ -154,9 +154,14 @@ public class TabuSearch {
                         break;
                     case 4:
                         long startTime = System.currentTimeMillis();
-                        solve(Main.packages);
+                        Package[] packages = solve(Main.packages.clone());
                         long endTime = System.currentTimeMillis();
+                        System.out.println("Improved cost from " + Package.getCost(Main.packages) + " to " + Package.getCost(packages));
                         System.out.println("Execution time: " + (endTime - startTime) + "ms");
+                        System.out.println("Do you want to save an image of the path? [y/n]");
+                        if (scanner.next().equals("y")) {
+                            Main.GenerateImage(packages);
+                        }
                         break;
                 }
             }catch (InputMismatchException e) {
