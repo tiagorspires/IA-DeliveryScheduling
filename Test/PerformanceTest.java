@@ -6,78 +6,9 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.concurrent.Callable;
 import java.util.stream.IntStream;
 
 public class PerformanceTest {
-    private static final Package[] packages = Main.generatePackages(500, 100, 100);
-
-    public void Test(Callable<Package[]> algo, String name) {
-        double total = 0;
-        double totalTime = 0;
-        System.out.println("Testing " + name);
-
-
-        for (int i = 0; i < 10; i++) {
-            try {
-
-                double time = System.currentTimeMillis();
-                Package[] path = algo.call();
-
-                totalTime += (System.currentTimeMillis() - time);
-                total += Package.getCost(path);
-            } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
-            }
-        }
-
-        System.out.println("Average cost: " + total / 10 + "\n");
-        System.out.println("Average time: " + totalTime / 10 + "ms\n");
-    }
-
-    @Test
-    public void TestSolve() {
-        Test(() -> HillClimbing.solve(packages), "Hill Climbing");
-        HillClimbing.mutationType = 2;
-        Test(() -> HillClimbing.solve(packages), "Hill Climbing with mutation 2");
-
-        Test(() -> Annealing.solve(packages), "Simulated Annealing");
-        Mutations.mutationType = 2;
-        Test(() -> Annealing.solve(packages), "Simulated Annealing with mutation 2");
-    }
-
-    @Test
-    public void Test3(){
-        long time = System.currentTimeMillis();
-
-        Annealing.collingSchedule = 3;
-        Annealing.startTemperature = 5;
-        Mutations.mutationType = 2;
-        Annealing.numUnchangedIterations = 10000;
-
-        double cost = Package.getCost(Annealing.solve(Main.generatePackages(500, 100, 100)));
-
-        System.out.println("Execution time: " + (System.currentTimeMillis() - time) + "ms" + " with cost: " + cost);
-
-        time = System.currentTimeMillis();
-
-        Annealing.collingSchedule = 1;
-        Annealing.startTemperature = 1000;
-        Annealing.numUnchangedIterations = 10000;
-
-        cost = Package.getCost(Annealing.solve(Main.generatePackages(500, 100, 100)));
-
-        System.out.println("Execution time: " + (System.currentTimeMillis() - time) + "ms" + " with cost: " + cost);
-
-        time = System.currentTimeMillis();
-        TabuSearch.mutationType = 2;
-        TabuSearch.tenure = 10000;
-        TabuSearch.numUnchangedIterations = 1000;
-
-        cost = Package.getCost(TabuSearch.solve(Main.generatePackages(500, 100, 100)));
-
-        System.out.println("Execution time: " + (System.currentTimeMillis() - time) + "ms" + " with cost: " + cost);
-    }
 
     @Test
     public void GetExecutionTime() {
@@ -98,8 +29,6 @@ public class PerformanceTest {
             }
         }
     }
-
-
 
     @Test
     public void execute50AnnealingTimes() throws IOException {
@@ -181,7 +110,7 @@ public class PerformanceTest {
 
                     finalFile.close();
 
-                    file2.write((mutationType + "," + t + "," + population  + "," + sum / 50 + "," + (System.currentTimeMillis() - time) +"\n").getBytes());
+                    file2.write((mutationType + "," + t + "," + population   + "," + (System.currentTimeMillis() - time) + "," + sum / 50 +"\n").getBytes());
                     file2.flush();
 
                     System.out.println("Average cost: " + sum / 50 + " total time: " + (System.currentTimeMillis() - time) + "ms" + " for mutation type: " + mutationType + " and tenure: " + t + " and population size: " + population);
@@ -226,11 +155,12 @@ public class PerformanceTest {
 
                 finalFile.close();
 
-                file2.write((mutationType + "," + population  + "," + sum / 50 + "," + (System.currentTimeMillis() - time) +"\n").getBytes());
+                file2.write((mutationType + "," + population  + ","  + (System.currentTimeMillis() - time) + sum / 50 + "," +"\n").getBytes());
                 file2.flush();
 
                 System.out.println("Average cost: " + sum / 50 + " total time: " + (System.currentTimeMillis() - time) + "ms" + " for mutation type: " + mutationType + " and population size: " + population);
                 System.out.println("------------------------------------------------------------");
+
             }
         }
 

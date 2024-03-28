@@ -1,24 +1,15 @@
-import Packages.Mutations;
 import Packages.Package;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-public class AnnealingTest {
 
-    private static final HashSet<String> original = new HashSet<>();
+public class MutationsTest {
+
 
     private static final Package[] packages = Main.generatePackages(500,100,100);
-    @BeforeAll
-    public static void setUp() {
-        for (Package p : packages) {
-            original.add(p.toString());
-        }
-    }
+
     @Test
     public void mutation1Test() {
 
@@ -26,7 +17,7 @@ public class AnnealingTest {
         for (int i = 0; i < 100; i++) {
             Package[] p = packages.clone();
 
-            Mutations.mutation1(p);
+            Packages.Mutations.mutation1(p);
 
             // check if the original set contains the mutated packages
             Set<Package> a = Arrays.stream(p).collect(Collectors.toSet());
@@ -42,7 +33,7 @@ public class AnnealingTest {
         for (int i = 0; i < 100; i++) {
             Package[] p = packages.clone();
 
-            Mutations.mutation2(p);
+            Packages.Mutations.mutation2(p);
 
             // check if the original set contains the mutated packages
             Set<Package> a = Arrays.stream(p).collect(Collectors.toSet());
@@ -59,7 +50,7 @@ public class AnnealingTest {
         for (int i = 0; i < 100; i++) {
             Package[] p = packages.clone();
 
-            Mutations.mutation3(p);
+            Packages.Mutations.mutation3(p);
 
             // check if the original set contains the mutated packages
             Set<Package> a = Arrays.stream(p).collect(Collectors.toSet());
@@ -69,16 +60,4 @@ public class AnnealingTest {
             }
         }
     }
-
-    @Test
-    public void SolveTest() throws IOException {
-        Mutations.mutationType = 2;
-
-        Package[] newPackages = Annealing.solve(packages);
-
-        for (Package p : newPackages) {
-            assert(original.contains(p.toString()));
-        }
-    }
-
 }

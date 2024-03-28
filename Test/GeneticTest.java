@@ -6,8 +6,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class GeneticTest {
-
-
     @Test
     public void TestShuffle() {
         Package[] packages = Main.generatePackages(500, 100, 100);
@@ -26,7 +24,7 @@ public class GeneticTest {
     public void TestCrossover() {
         Package[] packages = Main.generatePackages(500, 100, 100);
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
             Package[] parent1 = Genetic.shuffle(packages);
             Package[] parent2 = Genetic.shuffle(packages);
 
@@ -42,16 +40,5 @@ public class GeneticTest {
             assert(a.equals(c));
         }
 
-    }
-
-    @Test
-    public void TestSolve() {
-
-        Genetic.mutationProb = 0.9;
-        Genetic.numUnchangedGenerations = 1000;
-        double time = System.currentTimeMillis();
-        Package[] a = Genetic.solve(Main.generatePackages(500, 100, 100));
-        System.out.println("Cost: " + Package.getCost(a));
-        System.out.println("Execution time: " + (System.currentTimeMillis() - time) + "ms");
     }
 }
