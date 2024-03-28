@@ -160,7 +160,7 @@ public class TabuSearch {
                         System.out.println("Execution time: " + (endTime - startTime) + "ms");
                         System.out.println("Do you want to save an image of the path? [y/n]");
                         if (scanner.next().equals("y")) {
-                            Main.GenerateImage(packages);
+                            Main.GenerateImage(packages, "TabuSearch");
                         }
                         break;
                 }
@@ -180,7 +180,6 @@ public class TabuSearch {
         double bestCost = Package.getCost(packages);
         double currentCost = bestCost;
 
-        int iter = 0;
         int maxLastMutation = 0;
         int lastMutation = 0;
 
@@ -191,7 +190,6 @@ public class TabuSearch {
 
             double newCost = Package.getCost(newPath);
 
-            iter++;
             lastMutation++;
             if (newCost - currentCost < 0 ) {
                 if (tabuList.contains(m)){

@@ -126,7 +126,7 @@ public class Annealing {
                         System.out.println("Execution time: " + (endTime - startTime) + "ms");
                         System.out.println("Do you want to save an image of the path? [y/n]");
                         if (scanner.next().equals("y")) {
-                            Main.GenerateImage(packages);
+                            Main.GenerateImage(packages, "Annealing");
                         }
                         break;
                 }

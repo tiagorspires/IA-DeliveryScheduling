@@ -7,6 +7,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
@@ -244,10 +246,15 @@ public class Main {
     }
 
 
-    public static void GenerateImage(Package [] packages) {
-        BufferedImage image = new BufferedImage(height * 10, width * 10, BufferedImage.TYPE_INT_ARGB);
+    public static void GenerateImage(Package [] packages, String name) {
+        BufferedImage image = new BufferedImage(width * 10, height * 10 + 150, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = image.createGraphics();
 
+        g2d.setColor(Color.BLACK);
+        g2d.fillRect(0, height * 10, width * 10, 150);
+        g2d.setColor(Color.white);
+        g2d.setFont(new Font("TimesRoman", Font.PLAIN, 100));
+        g2d.drawString("Total cost: " + Package.getCost(packages), 10, height * 10 + 100);
         //background
         g2d.setColor(Color.WHITE);
         g2d.fillRect(0, 0, height * 10, width * 10);
@@ -259,7 +266,7 @@ public class Main {
         g2d.dispose();
 
         try {
-            ImageIO.write(image, "png", new File("path.png"));
+            ImageIO.write(image, "png", new File( name + ".png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -302,5 +309,66 @@ public class Main {
             }
             g2d.fillOval(p.getX() * 10, p.getY() * 10, 9, 9);
         }
+    }
+
+    public static double minDistance(int x, int y, LinkedList<Integer> clusterXlist, LinkedList<Integer> clusterYlist) {
+        double minDistance = Double.MAX_VALUE;
+        for (int j = 0; j < clusterXlist.size(); j++) {
+            double distance = Math.sqrt(Math.pow(x - clusterXlist.get(j), 2) + Math.pow(y - clusterYlist.get(j), 2));
+            if (distance < minDistance) {
+                minDistance = distance;
+            }
+        }
+        return minDistance;
+    }
+
+    public static Package[] generateClusteredCities(int numClusters, int clusterSize, int maxX, int maxY) {
+        Package[] cities = new Package[numClusters * clusterSize];
+        Random rand = new Random();
+
+        LinkedList<Integer> clusterXlist = new LinkedList<>();
+        LinkedList<Integer> clusterYlist = new LinkedList<>();
+
+        for (int i = 0; i < numClusters; i++) {
+            int upperBound = 90 * maxX / 100;
+            int lowerBound = 10 * maxX / 100;
+            int clusterX = rand.nextInt(upperBound - lowerBound) + lowerBound;
+            int clusterY = rand.nextInt(upperBound - lowerBound) + lowerBound;
+            double minDistance = minDistance(clusterX, clusterY, clusterXlist, clusterYlist);
+
+            // too many clusters in a small area might cause problems with the generation
+            while (minDistance < (double) (30 * maxX) / 100) {
+                clusterX = rand.nextInt(upperBound - lowerBound) + lowerBound;
+                clusterY = rand.nextInt(upperBound - lowerBound) + lowerBound;
+                minDistance = minDistance(clusterX, clusterY, clusterXlist, clusterYlist);
+            }
+            clusterXlist.add(clusterX);
+            clusterYlist.add(clusterY);
+
+            for (int j = 0; j < clusterSize; j++) {
+                int x = (int) rand.nextGaussian(clusterX, 10);
+                int y = (int) rand.nextGaussian(clusterY, 10);
+
+                while (x < 0 || x >= maxX)
+                    x = (int) rand.nextGaussian(clusterX, 10);
+                while (y < 0 || y >= maxY)
+                    y = (int) rand.nextGaussian(clusterY, 10);
+
+                int random = rand.nextInt(3);
+
+                if (random == 0) {
+                    int randomDeliveryTime = rand.nextInt(urgentMaxDeliveryTime - urgentMinDeliveryTime) + urgentMinDeliveryTime;
+                    cities[i * clusterSize + j] = new UrgentPackage(x, y, randomDeliveryTime);
+                } else if (random == 1) {
+                    int breakingCost = rand.nextInt(fragileMaxBreakingCost - fragileMinBreakingCost) + fragileMinBreakingCost;
+                    double breakingChance = rand.nextDouble() * (fragileMaxBreakingChance - fragileMinBreakingChance) + fragileMinBreakingChance;
+                    cities[i * clusterSize + j] = new FragilePackage(x, y, breakingChance, breakingCost);
+                } else {
+                    cities[i * clusterSize + j] = new Package(x, y);
+                }
+            }
+        }
+
+        return Genetic.shuffle(cities);
     }
 }
