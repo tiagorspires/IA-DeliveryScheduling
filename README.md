@@ -1,4 +1,5 @@
 # Delivery Scheduling
+![GIF](delivery.gif)
 
 ## Participants
 - Naldo Neves Monteiro Delgado (up201808613)
