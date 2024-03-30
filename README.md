@@ -104,3 +104,20 @@ The two graphics below showcase some of the data analysis on the algorithms used
 - Ricardo Antonio Pinto Da Cruz (up202008789)
 - Tiago Rocha Silveira Pires (up202008790)****
 
+### Related Work
+
+- https://rbanchs.com/documents/THFEL_PR15.pdf​
+
+- https://what-when-how.com/artificial-intelligence/a-comparison-of-cooling-schedules-for-simulated-annealing-artificial-intelligence/​
+
+- https://www.sciencedirect.com/science/article/pii/S1568494611000573​
+
+- https://user.ceng.metu.edu.tr/~ucoluk/research/publications/tspnew.pdf​
+
+- https://www.scielo.org.mx/pdf/cys/v21n3/1405-5546-cys-21-03-00493.pdf​
+
+- https://www.geeksforgeeks.org/simulated-annealing/​
+
+- https://www.geeksforgeeks.org/what-is-tabu-search/
+
+
