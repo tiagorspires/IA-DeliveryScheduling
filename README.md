@@ -89,6 +89,9 @@ The two graphics below showcase some of the data analysis on the algorithms used
 ![Alt text](https://github.com/BlackAlbino17/IA-23-24/assets/61878020/14aaafc2-1f37-40c6-9e93-6378cbd1af20)
 *A breakdown of each algorithms execution time and the comparison between them*
 
+![Alt text](img.png)
+*A graph showing the cost of the Annealing program over many iterations*
+
 ![Alt text](delivery.gif)
 *A GIF of the problem being solved by Hill Climbing.*
 
