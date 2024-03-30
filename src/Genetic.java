@@ -1,6 +1,7 @@
 import Packages.Package;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public class Genetic {
@@ -9,12 +10,8 @@ public class Genetic {
     public static int numUnchangedGenerations = 1_000;
     public static double mutationProb = 0.2;
     public static int childrenSize = 100;
-
     public static int crossoverMethod = 1;
-
-    public static String selectionMethod = "bestFitness";
-    public static String statsFile = "stats.csv";
-    public static String pathFile = "path.csv";
+    public static String selectionMethod = "Best Fitness";
 
     public static void solveWithGeneticMenu(Scanner scanner) {
         int option = 0;
@@ -315,21 +312,25 @@ public class Genetic {
 
             Package[][] finalPopulation = population;
 
-            Package[][] tempA = Arrays.stream(new Package[childrenSize])
-                    .parallel()
-                    .map(p -> randomMutate(crossover(finalPopulation[random.nextInt(populationSize)], finalPopulation[random.nextInt(populationSize)])))
-                    .toArray(Package[][]::new);
-            System.arraycopy(tempA, 0, population, populationSize, childrenSize);
+            Function<Package[], Package[]> crossover = switch (crossoverMethod) {
+                case 2 -> parent -> randomMutate(crossover(finalPopulation[random.nextInt(populationSize)], finalPopulation[random.nextInt(populationSize)]));
+                default -> parent -> randomMutate(crossover1(finalPopulation[random.nextInt(populationSize)], finalPopulation[random.nextInt(populationSize)]));
+            };
 
+            Package[][] tempA = Arrays.stream(population).parallel().map(crossover).toArray(Package[][]::new);
+            System.arraycopy(tempA, 0, population, populationSize, childrenSize);
             double[] tempC = Arrays.stream(tempA).parallel().map(Package::getAproxCost).mapToDouble(Double::doubleValue).toArray();
             System.arraycopy(tempC, 0, costs, populationSize, childrenSize);
 
-            //sort the first 100 population by cost
-            int index = tournamentSelect(population, costs);
-
+            int index = switch (selectionMethod) {
+                case "Roulette" -> rouletteSelect(population, costs);
+                case "Tournament" -> tournamentSelect(population, costs);
+                case "Best Fitness" -> bestFitnessSelect(population, costs);
+                default -> 0;
+            };
 
             if (costs[index] < bestCost) {
-                bestPath = population[index];
+                bestPath = population[index].clone();
                 bestCost = costs[index];
                 genSinceImprovement = 0;
             } else {
