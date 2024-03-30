@@ -1,14 +1,13 @@
 import Packages.Package;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public class Genetic {
     private static final SplittableRandom random = new SplittableRandom();
     public static int populationSize = 100;
-    public static int numUnchangedGenerations = 1_000;
-    public static double mutationProb = 0.2;
+    public static int numGenerations = 1_000;
+    public static double mutationProb = 0.8;
     public static int childrenSize = 100;
     public static int crossoverMethod = 1;
     public static String selectionMethod = "Best Fitness";
@@ -21,7 +20,7 @@ public class Genetic {
                 System.out.println("Current configuration:");
                 System.out.println("Population size: " + populationSize);
                 System.out.println("Children size: " + childrenSize);
-                System.out.println("Number of unchanged generations: " + numUnchangedGenerations);
+                System.out.println("Number of unchanged generations: " + numGenerations);
                 System.out.println("Mutation Probability: " + mutationProb + "\n");
                 System.out.println("Crossover method: " + crossoverMethod);
                 System.out.println("Selection method: " + selectionMethod + "\n");
@@ -51,8 +50,8 @@ public class Genetic {
                     case 2:
                         while (true) {
                             System.out.println("Number of generations: ");
-                            numUnchangedGenerations = scanner.nextInt();
-                            if (numUnchangedGenerations <= 0) {
+                            numGenerations = scanner.nextInt();
+                            if (numGenerations <= 0) {
                                 System.out.println("The number of generations must be greater than 0");
                                 continue;
                             }
@@ -153,16 +152,22 @@ public class Genetic {
         Package crossover2 = parent1[index1 + 1];
 
         int restIndex = 0;
-        for(int i = 0; i < parent2.length; i++){
-            if(i >= index1 && i < index2){
-                child[i] = parent1[i];
-            }else{
-                while(crossover1 == parent2[restIndex] || crossover2 == parent2[restIndex]){
-                    restIndex++;
-                }
-                child[i] = parent2[restIndex];
+        System.arraycopy(parent1, index1, child, index1, index2 - index1);
+
+        for (int i = 0; i < index1; i++) {
+            while(crossover1 == parent2[restIndex] || crossover2 == parent2[restIndex]){
                 restIndex++;
             }
+            child[i] = parent2[restIndex];
+            restIndex++;
+        }
+
+        for (int i = index2; i < parent1.length; i++) {
+            while(crossover1 == parent2[restIndex] || crossover2 == parent2[restIndex]){
+                restIndex++;
+            }
+            child[i] = parent2[restIndex];
+            restIndex++;
         }
         return child;
     }
@@ -281,15 +286,11 @@ public class Genetic {
 
     private static int bestFitnessSelect(Package[][] population, double[] costs) {
         //sort based on the costs array
-        Integer[] indexes = IntStream.range(0, costs.length).boxed().sorted(Comparator.comparingDouble(i -> costs[i])).toArray(Integer[]::new);
+        Integer[] indexes = IntStream.range(0, population.length).boxed().toArray(Integer[]::new);
+        Arrays.sort(indexes, Comparator.comparingDouble(a -> costs[a]));
 
-        Package[][] newPopulation = new Package[populationSize][];
-        double[] newCosts = new double[populationSize];
-
-        for (int i = 0; i < populationSize; i++) {
-            newPopulation[i] = population[indexes[i]];
-            newCosts[i] = costs[indexes[i]];
-        }
+        Package[][] newPopulation = Arrays.stream(indexes).parallel().map(i -> population[i]).toArray(Package[][]::new);
+        double[] newCosts = Arrays.stream(indexes).parallel().mapToDouble(i -> costs[i]).toArray();
 
         System.arraycopy(newPopulation, 0, population, 0, populationSize);
         System.arraycopy(newCosts, 0, costs, 0, populationSize);
@@ -303,40 +304,40 @@ public class Genetic {
         double[] costs;
         double bestCost = Package.getAproxCost(packages);
 
-        int genSinceImprovement = 0;
-
         population = Arrays.stream(population).parallel().map(p -> shuffle(packages.clone())).toArray(Package[][]::new);
         costs = Arrays.stream(population).parallel().map(Package::getAproxCost).mapToDouble(Double::doubleValue).toArray();
 
-        while (genSinceImprovement < numUnchangedGenerations) {
+        int lastImprovement = 0;
 
-            Package[][] finalPopulation = population;
+        while (lastImprovement < numGenerations) {
 
-            Function<Package[], Package[]> crossover = switch (crossoverMethod) {
-                case 2 -> parent -> randomMutate(crossover(finalPopulation[random.nextInt(populationSize)], finalPopulation[random.nextInt(populationSize)]));
-                default -> parent -> randomMutate(crossover1(finalPopulation[random.nextInt(populationSize)], finalPopulation[random.nextInt(populationSize)]));
-            };
+             Package[][] finalPopulation = population;
+             if (crossoverMethod == 1){
+                 Package[][] tempA = Arrays.stream(population).parallel().map(parent -> randomMutate(crossover(finalPopulation[random.nextInt(populationSize)], finalPopulation[random.nextInt(populationSize)]))).toArray(Package[][]::new);
+                 System.arraycopy(tempA, 0, population, populationSize, childrenSize);
+                 double[] tempC = Arrays.stream(tempA).parallel().map(Package::getAproxCost).mapToDouble(Double::doubleValue).toArray();
+                 System.arraycopy(tempC, 0, costs, populationSize, childrenSize);
+             }else {
+                 Package[][] tempA = Arrays.stream(population).parallel().map(parent -> randomMutate(crossover1(finalPopulation[random.nextInt(populationSize)], finalPopulation[random.nextInt(populationSize)]))).toArray(Package[][]::new);
+                 System.arraycopy(tempA, 0, population, populationSize, childrenSize);
+                 double[] tempC = Arrays.stream(tempA).parallel().map(Package::getAproxCost).mapToDouble(Double::doubleValue).toArray();
+                 System.arraycopy(tempC, 0, costs, populationSize, childrenSize);
+             }
 
-            Package[][] tempA = Arrays.stream(population).parallel().map(crossover).toArray(Package[][]::new);
-            System.arraycopy(tempA, 0, population, populationSize, childrenSize);
-            double[] tempC = Arrays.stream(tempA).parallel().map(Package::getAproxCost).mapToDouble(Double::doubleValue).toArray();
-            System.arraycopy(tempC, 0, costs, populationSize, childrenSize);
+             int index = switch (selectionMethod) {
+                 case "Roulette" -> rouletteSelect(population, costs);
+                 case "Tournament" -> tournamentSelect(population, costs);
+                 case "Best Fitness" -> bestFitnessSelect(population, costs);
+                 default -> 0;
+             };
 
-            int index = switch (selectionMethod) {
-                case "Roulette" -> rouletteSelect(population, costs);
-                case "Tournament" -> tournamentSelect(population, costs);
-                case "Best Fitness" -> bestFitnessSelect(population, costs);
-                default -> 0;
-            };
-
-            if (costs[index] < bestCost) {
-                bestPath = population[index].clone();
-                bestCost = costs[index];
-                genSinceImprovement = 0;
-            } else {
-                genSinceImprovement++;
-            }
-        }
+             if (costs[index] < bestCost) {
+                 bestPath = population[index].clone();
+                 bestCost = costs[index];
+                 lastImprovement = 0;
+             }
+             lastImprovement++;
+         }
 
         return bestPath;
     }
