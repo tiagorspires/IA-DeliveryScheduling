@@ -8,7 +8,6 @@ public class Annealing {
 
     public static double startTemperature = 10_000;
     public static double coolingRate = 0.999;
-    public static double endTemperature = 1;
     public static int numUnchangedIterations = 1000;
     public static int collingSchedule = 1;
     public static String statsFile = "stats.csv";
@@ -16,24 +15,28 @@ public class Annealing {
 
     public static void solveWithAnnealingMenu(Scanner scanner) {
         int option = 0;
-        while (option != 8) {
+        while (option != 7) {
             try {
                 System.out.println("Solve with simulated annealing\n");
                 System.out.println("Current configuration:");
                 System.out.println("Start temperature: " + startTemperature);
                 System.out.println("Cooling rate: " + coolingRate);
-                System.out.println("End temperature: " + endTemperature);
+                System.out.println("Cooling schedule: " + switch (collingSchedule) {
+                    case 1 -> "Tk = T0 * coolingRate^k";
+                    case 2 -> "Tk = T0 / ln(k + 1)";
+                    case 3 -> "Tk = T0 * e^(-coolingRate * k)";
+                    default -> "Tk = T0 * coolingRate^k";
+                });
                 System.out.println("Number of unchanged iterations: " + numUnchangedIterations);
                 System.out.println("Mutation type: " + Mutations.mutationType + "\n");
 
                 System.out.println("1. Change start temperature");
-                System.out.println("2. Change end temperature");
-                System.out.println("3. Change cooling rate");
-                System.out.println("4. Change number of unchanged iterations");
-                System.out.println("5. Change mutation type");
-                System.out.println("6. Change cooling schedule");
-                System.out.println("7. Solve");
-                System.out.println("8. Back");
+                System.out.println("2. Change cooling rate");
+                System.out.println("3. Change number of unchanged iterations");
+                System.out.println("4. Change mutation type");
+                System.out.println("5. Change cooling schedule");
+                System.out.println("6. Solve");
+                System.out.println("7. Back");
                 option = scanner.nextInt();
 
                 switch (option) {
@@ -50,17 +53,6 @@ public class Annealing {
                         break;
                     case 2:
                         while (true) {
-                            System.out.println("End temperature: ");
-                            endTemperature = scanner.nextDouble();
-                            if (endTemperature <= 0) {
-                                System.out.println("The end temperature must be greater than 0");
-                                continue;
-                            }
-                            break;
-                        }
-                        break;
-                    case 3:
-                        while (true) {
                             System.out.println("Cooling rate: ");
                             coolingRate = scanner.nextDouble();
                             if (coolingRate <= 0 || coolingRate >= 1) {
@@ -70,7 +62,7 @@ public class Annealing {
                             break;
                         }
                         break;
-                    case 4:
+                    case 3:
                         while (true) {
                             System.out.println("Number of unchanged iterations: ");
                             numUnchangedIterations = scanner.nextInt();
@@ -81,7 +73,7 @@ public class Annealing {
                             break;
                         }
                         break;
-                    case 5:
+                    case 4:
                         while (true) {
                             System.out.println("Mutation type 1 or 2: ");
                             Mutations.mutationType = scanner.nextInt();
@@ -92,7 +84,7 @@ public class Annealing {
                             break;
                         }
                         break;
-                    case 6:
+                    case 5:
                         while (true) {
                             System.out.println("Cooling schedule 1, 2 or 3: ");
                             System.out.println("1. Tk = T0 * coolingRate^k");
@@ -118,7 +110,7 @@ public class Annealing {
                             }
                             break;
                         }
-                    case 7:
+                    case 6:
                         long startTime = System.currentTimeMillis();
                         Package[] packages = solve(Main.packages.clone());
                         long endTime = System.currentTimeMillis();
