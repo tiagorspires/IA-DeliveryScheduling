@@ -1,7 +1,7 @@
 # Delivery Scheduling
 
 ## Overview
-This project aims to optimize package delivery scheduling using various heuristic algorithms. It provides a menu-driven interface to configure the optimization process and select the desired algorithm.
+This project aims to optimize package delivery scheduling using various meta-heuristic algorithms. It provides a menu-driven interface to configure the optimization process and select the desired algorithm.
 
 ## How to Run (Developed on IntelliJ IDEA)
 1. Clone the repository to your local machine.
